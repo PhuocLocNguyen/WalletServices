@@ -1,0 +1,22 @@
+{
+  "name": "walletservices",
+  "version": "1.0.0",
+  "description": "walletservices",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PhuocLocNguyen/WalletServices.git"
+  },
+  "keywords": [
+    "walletservices"
+  ],
+  "author": "Nguyen Phuoc Loc <nguyenphuocloc095@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PhuocLocNguyen/WalletServices/issues"
+  },
+  "homepage": "https://github.com/PhuocLocNguyen/WalletServices#readme"
+}
