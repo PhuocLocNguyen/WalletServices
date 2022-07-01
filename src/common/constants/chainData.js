@@ -1,3 +1,5 @@
+import { chainType } from "./chainType";
+
 export const CHAIN_DATA = {
     multiChain: {
       isOther: true,

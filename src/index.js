@@ -12,10 +12,10 @@ export default class WalletServices {
         this.setting = SETTING_LOCAL
         // setItemStorage(get(props, KEY_STORE.JWT_TOKEN_REDUX), KEY_STORE.JWT_TOKEN_REDUX)
     }
-    
-  async init () {
-    await this.fetchSetting()
-  }
+
+    async init () {
+        await this.fetchSetting()
+    }
 
     async fetchSetting () {
         return new Promise(async (resolve) => {
@@ -32,5 +32,9 @@ export default class WalletServices {
             resolve()
           }
         })
+      }
+
+      findSetting (chain) {
+        return this.setting[chain] || get(CHAIN_DATA, `${chain}.rpcURL`)
       }
 }
