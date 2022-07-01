@@ -1,3 +1,4 @@
+import { COIN_IMAGE } from ".";
 import { chainType } from "./chainType";
 
 export const CHAIN_DATA = {
