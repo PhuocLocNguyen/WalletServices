@@ -8,6 +8,10 @@
     "dev": "node_modules/webpack/bin/webpack.js --mode production --watch --progress",
     "build": "node_modules/webpack/bin/webpack.js --mode production --progress"
   },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "query-string": "^6.13.8"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PhuocLocNguyen/WalletServices.git"

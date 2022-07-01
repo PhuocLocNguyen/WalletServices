@@ -1,0 +1,3 @@
+export const KEY_STORE = {
+    JWT_TOKEN_REDUX: 'JWT_TOKEN_REDUX'
+}
