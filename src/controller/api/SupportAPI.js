@@ -1,6 +1,10 @@
 import QueryString from 'query-string'
+import crypto from 'crypto-js'
+
 import { APP_VERSION, env } from '../../common/constants'
 import { KEY_STORE } from '../../common/constants/keystore'
+import { REQUEST_TYPE } from '../../common/constants/requestType'
+import { getItemStorage } from '../../common/function/utils'
 
 
 export class SupportAPI {
@@ -43,7 +47,7 @@ export class SupportAPI {
     try {
       const serverUrl = linkServer || env.SUPPORT_API
 
-      const token = getItemStorage(KEY_STORE.SPAM_TOKEN)
+      const token = getItemStorage(KEY_STORE.JWT_TOKEN_REDUX)
       const spamToken = '0xaeb0325a6789f597b4f7c2c4dcb36b1ba4232384ffaf7b24670b71dafc564cec'
 
       let queryStr = ''

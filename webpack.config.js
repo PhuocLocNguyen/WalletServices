@@ -8,9 +8,24 @@ module.exports = {
         filename: 'wallet-services.js',
         library: 'walletServices'
     },
+    module: {
+        rules: [
+          {
+            test: /\.js$/,
+            use: [
+              {
+                loader: 'babel-loader',
+                options: {
+                  presets: ['@babel/preset-env'],
+                }
+              }]
+          },
+        ]
+      },
     plugins: [
         new UglifyJsPlugin({
             exclude: [/\.min\.js$/gi] // skip pre-minified libs
         })
-    ]
+    ],
+   
 }

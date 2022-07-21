@@ -1,4 +1,5 @@
 import { COIN_IMAGE } from ".";
+import { ALGORAND_MIN_TX_FEE } from "../../controller/Library/Local/algo/constants";
 import { chainType } from "./chainType";
 
 export const CHAIN_DATA = {

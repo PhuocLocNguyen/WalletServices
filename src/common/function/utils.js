@@ -9,3 +9,14 @@ export const setItemStorage = (item, key) => {
 export const removeItemStorage = (key) => {
     window.localStorage.removeItem(key)
 }
+
+export const getLength = (value) => (value ? value.length : 0)
+
+
+export const lowerCase = (value) => {
+    return value && value.toLowerCase ? value.toLowerCase() : value
+  }
+
+export const upperCase = (value) => {
+    return value && value.toUpperCase ? value.toUpperCase() : value
+}
