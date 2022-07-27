@@ -29,6 +29,7 @@ export class WalletServices {
         this.generateData = this.generateData.bind(this)
         this.fetchInfoCoin = this.fetchInfoCoin.bind(this)
         this.fetchBalanceByChain = this.fetchBalanceByChain.bind(this)
+        this.findCoinGeckoPriceAsync = this.findCoinGeckoPriceAsync.bind(this)
     }
 
     async init () {
@@ -418,6 +419,14 @@ export class WalletServices {
         } catch (error) {
           console.log(error)
         }
+      }
+
+      async findCoinGeckoPriceAsync (cgkId) {
+        if (!this.coinGecko) {
+          await this.refreshFetchData()
+        }
+    
+        return this.findCoinGeckoPrice(cgkId)
       }
 
       generateData (dataGen, isMainCoin) {
