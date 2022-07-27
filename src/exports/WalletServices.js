@@ -4,7 +4,7 @@ import { SupportAPI } from "../controller/API/SupportAPI"
 import C98Balances from '../controller/ABI/C98Balances'
 import { genContract, genWeb3, getTokenInfo } from "../controller/Web3/evm"
 import { getItemStorage, getLength, lowerCase, setItemStorage } from '../common/function/utils'
-import { convertWeiToBalance } from "../common/function"
+import { convertWeiToBalance, scientificToDecimal } from "../common/function"
 import ERC20 from "../controller/ABI/ERC20"
 import { chainType } from "../common/constants/chainType"
 import BaseAPI from "../controller/API/BaseAPI"
@@ -28,6 +28,7 @@ export class WalletServices {
         this.fetchSetting = this.fetchSetting.bind(this)
         this.generateData = this.generateData.bind(this)
         this.fetchInfoCoin = this.fetchInfoCoin.bind(this)
+        this.fetchBalanceByChain = this.fetchBalanceByChain.bind(this)
     }
 
     async init () {
@@ -292,6 +293,36 @@ export class WalletServices {
             resolve([])
           }
         })
+      }
+
+       async fetchBalanceByChain (chain, wallet, selectedToken, bnbId) {
+        if (!wallet || (wallet && getLength(Object.keys(wallet)) === 0)) {
+          return 0
+        }
+    
+        let balance = 0
+        if (selectedToken && getLength(selectedToken.address) > 0 && chain !== chainType.terra) {
+          balance = await this.fetchTokenBalance(selectedToken.address,
+            selectedToken.walletAddress || wallet.address, selectedToken.decimal, chain, selectedToken.baseAddress, wallet.chainCustom)
+        } else {
+          balance = await this.fetchMainBalance(wallet.address, chain, bnbId, selectedToken ? selectedToken.denom : (chain === chainType.terra ? 'uluna' : ''), false, wallet)
+        }
+    
+        let realBalance = 0
+        if (balance) {
+          if (chain === chainType.binance) {
+            if (balance.free) {
+              realBalance = balance
+            }
+            if (balance[0] && balance[0].symbol) {
+              realBalance = balance[0]
+            }
+          } else {
+            realBalance = scientificToDecimal(balance)
+          }
+        }
+    
+        return realBalance
       }
 
       async fetchMainBalance (address, chain) {
