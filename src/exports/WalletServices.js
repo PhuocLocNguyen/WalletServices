@@ -29,7 +29,8 @@ export class WalletServices {
         this.generateData = this.generateData.bind(this)
         this.fetchInfoCoin = this.fetchInfoCoin.bind(this)
         this.fetchBalanceByChain = this.fetchBalanceByChain.bind(this)
-        this.findCoinGeckoPriceAsync = this.findCoinGeckoPriceAsync.bind(this)
+    this.fetchTokenBalance = this.fetchTokenBalance.bind(this)
+    this.findCoinGeckoPriceAsync = this.findCoinGeckoPriceAsync.bind(this)
     }
 
     async init () {
@@ -324,6 +325,83 @@ export class WalletServices {
         }
     
         return realBalance
+       }
+  
+       async fetchTokenBalance (contractAddress, address, decimalToken, chain, solTokenAddress, chainCustom, isRawAmount) {
+        return new Promise(async (resolve, reject) => {
+          const chainSelected = CHAIN_DATA[chain]
+          if (chain === chainType.tron) {
+            if (this.tronClient.isAddress(contractAddress)) {
+              this.tronClient.contract().at(contractAddress).then(contract => {
+                contract.balanceOf(address).call().then(balance => {
+                  const tokenBalance = convertWeiToBalance(balance, decimalToken)
+                  resolve(tokenBalance)
+                }).catch(() => resolve(0))
+              }).catch(() => resolve(0))
+            } else {
+              const response = await fetch(`https://api.trongrid.io/v1/accounts/${address}`)
+              const fullData = await response.json()
+              if (fullData && getLength(fullData.data) > 0) {
+                const trc10Tokens = fullData.data[0].assetV2
+                const trc10Balance = trc10Tokens.find(it => it.key === contractAddress)
+    
+                if (trc10Balance) {
+                  resolve(convertWeiToBalance(trc10Balance.value, decimalToken))
+                } else {
+                  resolve(0)
+                }
+              }
+            }
+          } else if (chain === chainType.solana) {
+            const splAccountAddress = solTokenAddress || await fetchSPLAccount({ address }, contractAddress)
+    
+            const amount = await solanaGetBalance(splAccountAddress, true, isRawAmount)
+            resolve(amount)
+          } else if (chain === chainType.kardia) {
+            const tokenBalance = await this.kardiaClient.getTokenBalance({ contractAddress, address, decimalToken })
+            resolve(tokenBalance)
+          } else if (chain === chainType.near) {
+            const tokenBalance = await getNearTokenBalance(contractAddress, address)
+            resolve(convertWeiToBalance(tokenBalance))
+          } else if (get(chainSelected, 'isLibrary')) {
+            const tokenBalance = await this[chainSelected.chain + 'Client'].getBalanceToken(address, contractAddress, decimalToken)
+            resolve(tokenBalance)
+          } else {
+            try {
+              const chainGenerate = chainCustom || chain
+              const web3 = this['web3' + chainGenerate]
+    
+              if (!web3) {
+                this['web3' + chainGenerate] = genWeb3(chain, false, chainCustom)
+              }
+    
+              const contract = genContract(web3, ERC20, contractAddress)
+    
+              contract.methods.balanceOf(address).call().then(balance => {
+                if (isRawAmount) {
+                  resolve(balance)
+                }
+    
+                if (decimalToken) {
+                  const tokenBalance = convertWeiToBalance(balance, decimalToken)
+                  resolve(tokenBalance)
+                } else {
+                  contract.methods.decimals().call().then(decimal => {
+                    const tokenBalance = convertWeiToBalance(balance, decimal)
+                    resolve(tokenBalance)
+                  }).catch(() => {
+                    const tokenBalance = convertWeiToBalance(balance, 18)
+                    resolve(tokenBalance)
+                  })
+                }
+              }).catch(() => {
+                resolve(0)
+              })
+            } catch (err) {
+              resolve(0)
+            }
+          }
+        })
       }
 
       async fetchMainBalance (address, chain) {
