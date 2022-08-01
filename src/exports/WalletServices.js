@@ -9,12 +9,15 @@ import ERC20 from "../controller/ABI/ERC20"
 import { chainType } from "../common/constants/chainType"
 import BaseAPI from "../controller/API/BaseAPI"
 import { COIN_IMAGE } from "../common/constants"
+import { KEY_STORE } from "../common/constants/keystore"
+import ERC721 from "../controller/ABI/ERC721"
 
 const CHAIN_DATA_VALUES = Object.values(CHAIN_DATA)
 const SETTING_LOCAL = CHAIN_DATA_VALUES.filter(itm => itm.rpcURL).reduce((a, v) => ({ ...a, [v.chain]: v.rpcURL }), {})
 export const WEB3_CHAIN = CHAIN_DATA_VALUES.filter(itm => itm.isWeb3).map(itm => itm.chain)
 export const COSMOS_CHAIN = CHAIN_DATA_VALUES.filter(itm => itm.isCosmos).map(itm => itm.chain)
 export const CHAIN_HAVE_TOKEN = CHAIN_DATA_VALUES.filter(itm => itm.isToken).map(itm => itm.chain)
+const SUPPORTED_NFT = CHAIN_DATA_VALUES.filter(itm => itm.isSupportedNFT).map(itm => itm.chain)
 
 export class WalletServices {
     constructor () {
@@ -29,6 +32,12 @@ export class WalletServices {
         this.generateData = this.generateData.bind(this)
         this.fetchInfoCoin = this.fetchInfoCoin.bind(this)
         this.fetchBalanceByChain = this.fetchBalanceByChain.bind(this)
+        this.refreshInformationNFT = this.refreshInformationNFT.bind(this)
+        this.fetchNFT = this.fetchNFT.bind(this)
+        this.fetchNFTEVMBalances = this.fetchNFTEVMBalances.bind(this)
+
+
+
     }
 
     async init () {
@@ -46,6 +55,7 @@ export class WalletServices {
               this['contractBalance' + item] = new web3Only.eth.Contract(C98Balances, CHAIN_DATA[item].balances)
             }
           })
+          this.refreshInformationNFT()
           await this.refreshCoinData()
           this.refreshFetchData()
         }catch (error) {
@@ -87,6 +97,24 @@ export class WalletServices {
         }
         return info
       }
+
+     
+  async refreshInformationNFT () {
+    return new Promise(async (resolve, reject) => {
+      const nftStorage = await getItemStorage(KEY_STORE.SET_NFT_INFORMATION)
+      if (nftStorage) {
+        this.nftInformation = nftStorage
+        resolve()
+      }
+
+      const fetchData = await BaseAPI.getData('nft/supported/v2')
+      if (fetchData) {
+        setItemStorage(fetchData, KEY_STORE.SET_NFT_INFORMATION)
+        this.nftInformation = fetchData
+      }
+      resolve()
+    })
+  } 
 
     async fetchSetting () {
         return new Promise(async (resolve) => {
@@ -492,5 +520,171 @@ export class WalletServices {
       //   const reg = /^(0x)[0-9A-Fa-f]{40}$/
       //   return reg.test(address)
       // }
+
+
+      async fetchNFT (walletRedux) {
+        const findWallet =  walletRedux.filter(itm => itm.isActive && SUPPORTED_NFT.includes(itm.chain))
+        if (getLength(findWallet) > 0) {
+          const walletFull = findWallet.map(itm => { return { address: itm.address, chain: itm.chain } })
+          const fetchData = await BaseAPI.postData('nft/accountV2', { isV2: true, data: walletFull }).catch()
+    
+          // Fetch on local device
+          if (this.nftInformation) {
+            const otherChain = this.nftInformation.other
+            const solanaChain = this.nftInformation.solana
+    
+            const dataMap = Object.keys(otherChain)
+            const finalData = await Promise.all(dataMap.map(async (itm) => {
+              const gameSupported = otherChain[itm]
+    
+              if (!gameSupported.isSupported) return false
+    
+              try {
+                const gameChainFinal = await Promise.all(gameSupported.chain.map(async (gameChain) => {
+                  const findWallet = walletFull.find(wl => wl.chain === gameChain.chain)
+                  if (!findWallet) return null
+                  if (WEB3_CHAIN.includes(gameChain.chain)) {
+                    const data = await this.fetchNFTEVMBalances(gameChain.chain, findWallet.address, gameChain.address, gameSupported.tokenID, gameChain.multiple, gameSupported.key)
+                    if (getLength(data) === 0) return null
+                    return data
+                  }
+                }))
+    
+                let fmtData = gameChainFinal.filter(itm => itm)
+                fmtData = [].concat.apply([], fmtData)
+    
+                if (getLength(fmtData) === 0) return null
+    
+                return {
+                  key: itm,
+                  sizeCover: gameSupported.sizeCover,
+                  size: gameSupported.size,
+                  isCover: gameSupported.isCover,
+                  isCoverLogo: gameSupported.isCoverLogo,
+                  link: gameSupported.link,
+                  logo: gameSupported.logo,
+                  name: gameSupported.name,
+                  data: fmtData,
+                  total: getLength(fmtData)
+                }
+              } catch (error) {
+                return null
+              }
+            }))
+    
+            let finalDataSolana = []
+    
+            // try {
+            //   const findWalletSolana = walletFull.find(wl => wl.chain === chainType.solana)
+            //   if (findWalletSolana) {
+            //     const dataSolana = await this.getSolanaNFT(findWalletSolana.address, solanaChain).catch()
+    
+            //     if (dataSolana) {
+            //       finalDataSolana = Object.keys(dataSolana).map(key => {
+            //         const gameInfo = solanaChain[key]
+            //         return {
+            //           key,
+            //           size: get(gameInfo, 'size', { height: 14, width: 43 }),
+            //           isCover: get(gameInfo, 'isCover', true),
+            //           isCoverLogo: get(gameInfo, 'isCoverLogo', true),
+            //           sizeCover: get(gameInfo, 'sizeCover'),
+            //           link: get(gameInfo, 'link'),
+            //           logo: get(gameInfo, 'logo', 'https://coin98.s3.ap-southeast-1.amazonaws.com/NFT/solanaDefault.png'),
+            //           name: get(gameInfo, 'name', 'Solana NFT'),
+            //           data: dataSolana[key],
+            //           total: getLength(dataSolana[key])
+            //         }
+            //       })
+            //     }
+            //   }
+            // } catch (error) {
+            //   console.log('Load solana nft error ', error)
+            // }
+            const resultData = []
+    
+            if (getLength(finalData) > 0) {
+              Array.prototype.push.apply(resultData, finalData.filter(itm => itm))
+            }
+            if (getLength(finalDataSolana) > 0) {
+              Array.prototype.push.apply(resultData, finalDataSolana.filter(itm => itm))
+            }
+    
+            Array.prototype.push.apply(resultData, fetchData)
+    
+            // ReduxServices.callDispatchAction(StorageReduxAction.setNFT(resultData))
+            return resultData
+          }
+        } else {
+          // ReduxServices.callDispatchAction(StorageReduxAction.setNFT([]))
+          return []
+        }
+      }
+
+      async fetchNFTEVMBalances (chain, owner, contractAddress, gameID, multipleAddress, keyGame) {
+        try {
+          const web3BSC = this['web3' + chain]
+    
+          if (multipleAddress) {
+            let finalMultiple = await Promise.all(multipleAddress.map(async (item) => {
+              const data = await this.fetchNFTEVMBalances(chain, owner, item.address, item.key)
+              return data
+            }))
+    
+            finalMultiple = finalMultiple.filter(itm => itm)
+            if (getLength(finalMultiple) > 0) {
+              finalMultiple = [].concat.apply([], finalMultiple)
+              return finalMultiple
+            } else {
+              return []
+            }
+          }
+    
+          const payload = []
+          const contract = new web3BSC.eth.Contract(ERC721, contractAddress)
+          const totalAsset = await contract.methods.balanceOf(owner).call()
+          const endNum = parseFloat(totalAsset)
+    
+          if (endNum > 0) {
+            for (let i = 0; i < endNum; i++) {
+              const tokenID = await contract.methods.tokenOfOwnerByIndex(owner, i).call()
+    
+              payload.push({
+                id: tokenID,
+                address: contractAddress,
+                image: '',
+                chain,
+                name: ''
+              })
+            }
+    
+            const payloadInfo = await BaseAPI.postData('eco/nfts/info', {
+              data: payload.map(item => {
+                return {
+                  chain,
+                  key: keyGame,
+                  id: item.id
+                }
+              })
+            }).catch()
+    
+            const finalMapInfo = payload.map(item => {
+              if (payloadInfo) {
+                const findInfo = payloadInfo.find(info => get(info, 'tokenId', '').toString() === item.id.toString())
+                if (findInfo) {
+                  item.image = get(findInfo, 'tokenInfo.image')
+                  item.name = get(findInfo, 'tokenInfo.name') || upperCase(gameID) + ` #${item.id}`
+                  return item
+                }
+              }
+              return item
+            })
+    
+            return finalMapInfo
+          }
+          return []
+        } catch (error) {
+          return []
+        }
+      }
       
 }
