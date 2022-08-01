@@ -252,7 +252,7 @@ export class WalletServices {
         return new Promise(async (resolve, reject) => {
           try {
             const tokenData = this.coinLocal[chain] ? this.coinLocal[chain].filter((item) => getLength(item.address) > 0) : []
-            const addressChain = tokenData.map((item) => item.address)
+            const addressChain = tokenData.map((item) => item.address.trim())
     
             const fetchSplit = async (start) => {
               const sliceTokenData = tokenData.slice(start, start + 500)

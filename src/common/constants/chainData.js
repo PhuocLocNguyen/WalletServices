@@ -117,7 +117,7 @@ export const CHAIN_DATA = {
       symbol: 'BNB',
       chain: chainType.binanceSmart,
       trcName: 'BNB BEP20',
-      rpcURL: 'https://bscrpc.com',
+      rpcURL: 'https://nd-568-863-669.p2pify.com/2dfeb3634054cc14d8a64a528431a652',
       scan: 'https://bscscan.com'
     },
     heco: {
