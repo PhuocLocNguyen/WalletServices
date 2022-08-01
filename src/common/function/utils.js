@@ -2,6 +2,13 @@ export const getItemStorage = (key) => {
     return JSON.parse(window.localStorage.getItem(key))
 }
 
+export const getItemStoragePersist = (key) => {
+    const persist = localStorage.getItem('persist:C98HubV8');
+    const store = JSON.parse(persist);
+    return store[key]
+}
+
+
 export const setItemStorage = (item, key) => {
     window.localStorage.setItem(key, JSON.stringify(item))
 }

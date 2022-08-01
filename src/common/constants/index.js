@@ -1,5 +1,6 @@
 export const env = {
     API_URL: 'https://development.coin98.services/api/',
+    // API_URL: 'https://production.coin98.services/api/',
     SUPPORT_API: 'https://information.coin98.services/api/',
     NODE_ENV: 'local'
 }

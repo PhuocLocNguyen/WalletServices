@@ -300,7 +300,7 @@ export default class BaseAPI {
     try {
       const serverUrl = linkServer || env.API_URL
 
-      const token = getItemStorage(KEY_STORE.JWT_TOKEN_REDUX)
+      const token = getItemStoragePersist(KEY_STORE.JWT_TOKEN_REDUX)
       const spamToken = '0xaeb0325a6789f597b4f7c2c4dcb36b1ba4232384ffaf7b24670b71dafc564cec'
 
       let queryStr = ''
