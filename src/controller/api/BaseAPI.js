@@ -5,7 +5,7 @@ import isNil from 'lodash/isNil'
 import { APP_VERSION, env } from '../../common/constants'
 import { REQUEST_TYPE } from '../../common/constants/requestType'
 import { KEY_STORE } from '../../common/constants/keystore'
-import { getItemStorage } from '../../common/function/utils'
+import { getItemStorage, getItemStoragePersist } from '../../common/function/utils'
 import { convertPasswordHMAC256Old } from '../../common/function'
 
 const STR_ERR = 'The requested URL was not found '
