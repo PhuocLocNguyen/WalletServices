@@ -579,5 +579,42 @@ export class WalletServices {
       //   const reg = /^(0x)[0-9A-Fa-f]{40}$/
       //   return reg.test(address)
       // }
+
+      validateBlockChainAddress = (address, chain = chainType.ether) => {
+        const chainSelected = CHAIN_DATA[chain]
+        if (chain === chainType.tron) {
+          const reg = /^T[1-9A-HJ-NP-Za-km-z]{33}$/
+          return reg.test(address)
+        } else if (get(chainSelected, 'isCosmos') || chain === chainType.elrond) {
+          try {
+            bech32.decode(address)
+            return true
+          } catch (error) {
+            return false
+          }
+        } else if (chain === chainType.near || chain === chainType.avaxX) {
+          return true
+        } else if (get(chainSelected, 'isPolkadot')) {
+          return validateAddressPolkadot(address)
+        } else if (chain === chainType.solana) {
+          try {
+            return new PublicKey(address)
+          } catch (error) {
+            return false
+          }
+        } else if (chain === chainType.bitcoin) {
+          return validateBitcoin(address)
+        } else if (get(chainSelected, 'isLibrary')) {
+          return this[chain + 'Client'].validate(address)
+        } else {
+          const reg = /^(0x)[0-9A-Fa-f]{40}$/
+          const isValid = reg.test(address)
+          if (!isValid && [chainType.harmony, chainType.ronin].includes(chain)) {
+            return address.startsWith(chainSelected.prefix) && (parseInt(getLength(address)) - parseInt(getLength(chainSelected.prefix))) === (chain === chainType.harmony ? 39 : 40)
+          }
+    
+          return isValid
+        }
+      }
       
 }
