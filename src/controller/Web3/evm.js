@@ -49,6 +49,8 @@ export const genWeb3 = (chain, isProvider, rpcLink) => {
           const findData = findLocal.find(it => lowerCase(it.address) === lowerCase(contractAddress))
           if (findData) {
             return resolve({
+              chain,
+              address,
               name: findData.name,
               image: findData.image,
               symbol: findData.symbol,
@@ -63,12 +65,12 @@ export const genWeb3 = (chain, isProvider, rpcLink) => {
         contract.methods.symbol().call().then(symbol => {
           contract.methods.name().call().then(name => {
             contract.methods.decimals().call().then(decimals => {
-              resolve({address: contractAddress, name, decimals, symbol })
+              resolve({address: contractAddress, name, decimals, symbol, chain })
             }).catch(() => {
-              resolve({address: contractAddress, name, decimals: 18, symbol })
+              resolve({address: contractAddress, name, decimals: 18, symbol, chain })
             })
           }).catch(() => {
-            resolve({ name: '', decimals: 18, symbol })
+            resolve({ name: '', decimals: 18, symbol, chain })
           })
         }).catch(() => {
           resolve(false)
