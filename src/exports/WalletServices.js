@@ -45,7 +45,7 @@ export class WalletServices {
         this.checkIsReady()
     }
 
-    async checkIsReady () {
+    async checkIsReady ({isNoNFT}) {
         try {
         WEB3_CHAIN.map(item => {
             const web3Only = genWeb3(item)
@@ -55,9 +55,9 @@ export class WalletServices {
               this['contractBalance' + item] = new web3Only.eth.Contract(C98Balances, CHAIN_DATA[item].balances)
             }
           })
-          this.refreshInformationNFT()
+          !isNoNFT && this.refreshInformationNFT()
           await this.refreshCoinData()
-          this.refreshFetchData()
+          await this.refreshFetchData()
         }catch (error) {
             return false
         }
@@ -356,6 +356,7 @@ export class WalletServices {
       async fetchMainBalance (address, chain) {
         return new Promise(async (resolve, reject) => {
           try {
+             let block = 'latest'
             this['web3' + chain].eth.getBalance(address).then(async (response) => {
               resolve(convertWeiToBalance(response))
             }).catch((errr) => {
