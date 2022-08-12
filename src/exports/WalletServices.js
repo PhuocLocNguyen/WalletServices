@@ -8,7 +8,7 @@ import { convertWeiToBalance, scientificToDecimal } from "../common/function"
 import ERC20 from "../controller/ABI/ERC20"
 import { chainType } from "../common/constants/chainType"
 import BaseAPI from "../controller/API/BaseAPI"
-import { COIN_IMAGE } from "../common/constants"
+import { ADDRESS_MAIN_COIN, COIN_IMAGE } from "../common/constants"
 import { KEY_STORE } from "../common/constants/keystore"
 import ERC721 from "../controller/ABI/ERC721"
 
@@ -386,10 +386,20 @@ export class WalletServices {
     
           // Main Coin
           const balance = await this.fetchInitial(address, chain, dataChain)
+          const chainData = CHAIN_DATA[chain]
     
-          if (!balance && balance !== 0) {
-            return null
-          }
+          finalData.push({
+            price: this.findCoinGeckoPrice(chainData.id),
+            address: ADDRESS_MAIN_COIN[chain],
+            cgkId: chainData.id,
+            symbol: chainData.symbol,
+            name: chainData.name,
+            image: chainData.imageLink,
+            decimals: chainData.decimal || 18,
+            denom: chainData.denom,
+            balance: balance || 0
+          })
+          
     
           if (CHAIN_DATA[chain].isToken) {
             // Get Token Data

@@ -1,3 +1,5 @@
+import { chainType } from "./chainType"
+
 export const env = {
     API_URL: 'https://development.coin98.services/api/',
     // API_URL: 'https://production.coin98.services/api/',
@@ -64,4 +66,17 @@ export const COIN_IMAGE = {
     ALGO: 'https://coin98.s3.ap-southeast-1.amazonaws.com/Coin/algorand.png',
     CSPR: 'https://coin98.s3.ap-southeast-1.amazonaws.com/Coin/casper.png',
     FX: 'https://coin98.s3.ap-southeast-1.amazonaws.com/fx.png'
+  }
+
+
+  export const ADDRESS_MAIN_COIN = {
+    [chainType.ether]: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    [chainType.binanceSmart]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+    [chainType.heco]: '0x5545153CCFcA01fbd7Dd11C0b23ba694D9509A6F',
+    [chainType.matic]: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
+    [chainType.AVAX]: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+    [chainType.fantom]: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    [chainType.kucoin]: '0x4446Fc4eb47f2f6586f9fAAb68B3498F86C07521',
+    [chainType.celo]: '0x471EcE3750Da237f93B8E339c536989b8978a438',
+    [chainType.boba]: '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000'
   }
