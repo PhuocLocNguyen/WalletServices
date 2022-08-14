@@ -262,13 +262,13 @@ export class WalletServices {
         })
       }
 
-      async getDataTokens (chain, address) {
+      async getDataTokens (chain, address, listToken) {
         if (chain === chainType.ether) {
           const result = await BaseAPI.getData(`fetchEther/${address}`)
           return result && result.tokens ? result.tokens.map(item => ({ ...item, balance: convertWeiToBalance(item.balance, item.tokenInfo.decimals) })) : []
         } else {
           if (this['contractBalance' + chain]) {
-            const result = await this.getWeb3BalancesContract(chain, address)
+            const result = await this.getWeb3BalancesContract(chain, address, listToken)
             return result
           } else {
             return []
@@ -276,10 +276,10 @@ export class WalletServices {
         }
       }
 
-      async getWeb3BalancesContract (chain, address) {
+      async getWeb3BalancesContract (chain, address, listToken) {
         return new Promise(async (resolve, reject) => {
           try {
-            const tokenData = this.coinLocal[chain] ? this.coinLocal[chain].filter((item) => getLength(item.address) > 0) : []
+            const tokenData = listToken || (this.coinLocal[chain] ? this.coinLocal[chain].filter((item) => getLength(item.address) > 0) : [])
             const addressChain = tokenData.map((item) => item.address.trim())
     
             const fetchSplit = async (start) => {
@@ -289,14 +289,16 @@ export class WalletServices {
                   const formatBalance = parseFloat(item)
                   if (formatBalance > 0) {
                     const tokenCheck = sliceTokenData[index]
+                    const decimals = tokenCheck.decimal || tokenCheck.decimals
+                    
                     return {
                       balance: convertWeiToBalance(formatBalance, tokenCheck.decimal),
                       tokenInfo: {
-                        cgkId: tokenCheck.cgkId,
+                        cgkId: tokenCheck.cgkId || tokenCheck.id,
                         address: tokenCheck.address,
                         symbol: tokenCheck.symbol,
                         name: tokenCheck.name,
-                        decimals: tokenCheck.decimal,
+                        decimals,
                         image: tokenCheck.image
                       }
                     }
