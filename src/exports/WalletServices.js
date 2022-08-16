@@ -227,7 +227,7 @@ export class WalletServices {
         }
       }
 
-      async fetchTokenBalance (contractAddress, address, decimalToken, chain, isGetRawAmount) {
+       async fetchTokenBalance (contractAddress, address, decimalToken, chain, solTokenAddress, chainCustom, isGetRawAmount) {
         return new Promise(async (resolve, reject) => {
           try {
             const chainGenerate = chain
