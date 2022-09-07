@@ -1,8 +1,25 @@
 import Web3 from 'web3'
+import { CHAIN_STANDARD } from '../../common/constants'
+import { CHAIN_DATA } from '../../common/constants/chainData'
 import { chainType } from '../../common/constants/chainType'
 import { getLength, lowerCase } from '../../common/function/utils'
 import ERC20 from '../ABI/ERC20'
+const { default: Resolution } = require('@unstoppabledomains/resolution')
+const resolution = new Resolution()
+const bip39 = require('bip39')
+const bs58 = require('bs58')
 
+export const generateSeed = async (mnemonic) => {
+  const seed = await bip39.mnemonicToSeed(mnemonic)
+  return seed
+}
+export const convertBase58 = (secretKey, isDecode) => {
+  return isDecode
+    ? bs58.decode(secretKey)
+    : bs58.encode(Buffer.from(secretKey, 'hex'))
+}
+
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const genWeb3 = (chain, isProvider, rpcLink) => {
     let provider
@@ -35,6 +52,19 @@ export const genWeb3 = (chain, isProvider, rpcLink) => {
   
     return web3
   }
+
+
+export const unstopDomainResolver = (domain, chain, currency) => {
+  return new Promise(resolve => {
+    resolution.addr(domain, currency).then(addr => resolve(addr)).catch(() => {
+      const resolveSymbol = `${currency}${CHAIN_STANDARD[chain] ? `_${CHAIN_STANDARD[chain]}` : ''}`
+      resolution.addr(domain, resolveSymbol).then(addr => resolve(addr)).catch(() => {
+        const lastSymbol = CHAIN_DATA[chain].symbol
+        resolution.addr(domain, lastSymbol).then(addr => resolve(addr)).catch(() => resolve(ZERO_ADDRESS))
+      })
+    })
+  })
+}
 
   export const genContract = (web3, minABI, contractAddress) => {
     return new web3.eth.Contract(minABI, contractAddress)
@@ -86,3 +116,5 @@ export const genWeb3 = (chain, isProvider, rpcLink) => {
     const gasPrice = await web3Run.eth.getGasPrice()
     return gasPrice
   }
+
+

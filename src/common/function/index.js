@@ -1,5 +1,25 @@
 import bigdecimal from 'bigdecimal'
 
+
+export const upperCase = (value) => {
+  return value ? (value.toLowerCase() === 'wsol' ? 'wSOL' : value.toUpperCase()) : value
+}
+
+export const roundingNumber = (number, rounding = 7) => {
+  const powNumber = Math.pow(10, parseInt(rounding))
+  const fmtNumber = scientificToDecimal(Math.floor(number * powNumber) / powNumber)
+
+  return isNaN(fmtNumber) ? 0 : fmtNumber
+}
+
+export const getLength = (value) => {
+  return value ? value.length : 0
+}
+
+export const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 export const genDefaultBech32Config = chain => {
     return {
       bech32PrefixAccAddr: chain,

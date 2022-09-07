@@ -80,3 +80,62 @@ export const COIN_IMAGE = {
     [chainType.celo]: '0x471EcE3750Da237f93B8E339c536989b8978a438',
     [chainType.boba]: '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000'
   }
+
+  export const settingReduxRefSOL = {
+    MNGO: "FqkRLRNMhri5Fcw6po5mfrdQC5JECmfzjjvAn4R918d8",
+    BTC: "2y8YvkwtNr3wEXYKpzEW2jAfCGjfGBjgJ6fGntzh7GyU",
+    FTT: "FPv8zKn5oVg4FcHHiCkunp92AnuCXbrdN1iGn4DD2FcB",
+    YFI: "F88dSWG8Lp6E2D7NQzW7pzLPBCdGeXsJiemgQuyiDDJ",
+    LINK: "9KVbkGepJjRUgNQGbCNUwbh5KntSKVBQot6TKorYML9k",
+    XRP: "3ZjUxkm5XpQPhH44XXe36rGUfX9qWm3rFZRG81eYqVZY",
+    MSRM: "J5by8PM3DRXrSBgb482ZcUNcGbVVRcUgjcKyCMLHDiAQ",
+    SXP: "7YLqv782YN7KRk8V1kaFfPjAgZy8VqtNprrmEY1xB4dr",
+    ALEPH: "HgDgtwHyrxKcAFYz2M4L8UhCedrLNxSH3UxgbxU4519p",
+    CREAM: "5gYCPbqessMv7XVCxtS3zJg1Ah3kGp3Tj8EFYjqNZt12",
+    UBXT: "6VMJgcFVMh4LyvQEjBe86x6FPBkUUTmk392NfEoLkrZP",
+    FRONT: "J15NVhiARM3orjkTGMViznumPc6QzwAQ6ZaVwoHmYyir",
+    AKRO: "FNR1wnH5S3EWyYxGhvMxCi2edEtn1DPAsPcYY5ybN3K6",
+    UNI: "9pFCjJaqDqpY9Kxi5aFB6aXHKCS7S5JfTnn7AHn1WzTa",
+    KEEP: "7a2qULdgy8t7Nkhk1tBZjhUr1Ui7pXANweT9sBfmNpuK",
+    TOMO: "GybZCWBoYcNCGuJGWxyNtBQgKBw3nhdPFhYA8oyBdEn6",
+    KIN: "ABRQjHZ1NZvBWqcdjHbkTGUcgRY5sKCnLmwx5QLwgruA",
+    MAPS: "A8RDvsHXVqpnmzkKR93vKuBLhvZpqpgEkH5SvR9wVLfK",
+    AAVE: "8axe4fP4Aswhg8rXcfuxGwL1Z8PGDnXL5PG342t8aJgy",
+    TRYB: "4vsCM3Bd562rrDWx5EXUkqGX62ZVepgLcqQprS8pexmX",
+    WUSDT: "BVb9GXgkMVjq86X6QdKAKx57mvGjxwUDggSiVzBzDKyb",
+    WUSDC: "9ykQDimF8uj6oaU2Cdxw7vw2xiPb1a6we2zSBTKvkDFH",
+    USDC: "FDi2iCFp2A8fSbfCLdFiyargEL4jAsbg2ijLmaVLYepa",
+    SUSHI: "6eLpGdqCqC8z8okgkttAj3v8kwkpUzDGTs2aqYh9aYXD",
+    HNT: "ADfww9zJjJh25gxEzZTRsBt3LnJzdmZ1D2tkXF8tKjUn",
+    MATH: "F849S6fEv5S2rD5uXyS4aCwAvoNWpRsSB1dUDN2yrHxp",
+    OXY: "6cnNsEfMQEzrDNNdMGFgp4Mw95ZUS7FNcAXRrRRrgntP",
+    COPE: "7NKiKuXFgZSMo7cWU92beF9SNCYnjbKiy9xHYjCHzsy",
+    ETH: "8US6YGrciik1TzZZ53SGLj8jo4VrGHbbCwXBHruZjuhx",
+    SRM: "CTVtBL3qd9rM2XJPL5wbK7S9Qm7CXmTjaHXThTZojTiq",
+    LUA: "9BwSsWouUCTqNeY94e1TPFix6YJkRNuZyz1CLuvaRYiv",
+    FIDA: "GEptMtc6eccCDRFPgpVCZCsKz7wvX4f2TNYqUUqFGDwp",
+    RAY: "68qMPz8pyBrFo3rxgrK8Rw4FnJB39Kf8Do3qeDaA9LCz",
+    CEL: "2mQvx1NZAuA2XzAcfVKqDCUZXd4N57yD4jiLsbWKBjsp",
+    RSR: "Hr2r2sVYGeXUZEakMCjvMT9bmHnCJ6MueYU4eMw1ey6Z",
+    HXRO: "CrEdEK6Z3kAeNF4PxKWefSVfDjoFpNzarXqRu6qtR4e6",
+    SWAG: "hXR6SECx7ExsDCroiKJXPbFtxReNSzLqA6XmsquWDEP",
+    USDT: "8zoygE51ShVPw5FieMhh68WdbCgJVeJFE1nW1Rxxu4r8",
+    HGET: "5x9HPEdsyhH9breh2LygwJVdzazUz8gb3tDiHFs9WXGV"
+}
+
+export const CHAIN_STANDARD = {
+  [chainType.binanceSmart]: 'BEP20',
+  [chainType.ether]: 'ERC20',
+  [chainType.heco]: 'HRC20',
+  [chainType.matic]: 'MATIC',
+  [chainType.fantom]: 'FANTOM',
+  [chainType.avax]: 'AVAX',
+  [chainType.xDai]: 'XDAI',
+
+  [chainType.solana]: 'SOLANA',
+  [chainType.eos]: 'EOS',
+  [chainType.binance]: 'BEP2',
+  [chainType.terra]: 'TERRA',
+  [chainType.tron]: 'TRON',
+  [chainType.bitcoin]: ''
+}

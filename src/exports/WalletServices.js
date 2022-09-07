@@ -11,6 +11,8 @@ import BaseAPI from "../controller/API/BaseAPI"
 import { ADDRESS_MAIN_COIN, COIN_IMAGE } from "../common/constants"
 import { KEY_STORE } from "../common/constants/keystore"
 import ERC721 from "../controller/ABI/ERC721"
+import { fetchSPLAccount, genConnectionSolana, solanaGetBalance } from "../exports/Solana"
+import { PublicKey } from '@solana/web3.js'
 
 const CHAIN_DATA_VALUES = Object.values(CHAIN_DATA)
 const SETTING_LOCAL = CHAIN_DATA_VALUES.filter(itm => itm.rpcURL).reduce((a, v) => ({ ...a, [v.chain]: v.rpcURL }), {})
@@ -230,32 +232,42 @@ export class WalletServices {
        async fetchTokenBalance (contractAddress, address, decimalToken, chain, solTokenAddress, chainCustom, isGetRawAmount) {
         return new Promise(async (resolve, reject) => {
           try {
-            const chainGenerate = chain
-            const web3 = this['web3' + chainGenerate]
-    
-            if (!web3) {
-              this['web3' + chainGenerate] = genWeb3(chain, false)
-            }
-    
-            const contract = genContract(web3, ERC20, contractAddress)
-    
-            contract.methods.balanceOf(address).call().then(balance => {
-              if (isGetRawAmount) return resolve(balance)
-              if (decimalToken) {
-                const tokenBalance = convertWeiToBalance(balance, decimalToken)
-                resolve(tokenBalance)
-              } else {
-                contract.methods.decimals().call().then(decimal => {
-                  const tokenBalance = convertWeiToBalance(balance, decimal)
-                  resolve(tokenBalance)
-                }).catch(() => {
-                  const tokenBalance = convertWeiToBalance(balance, 18)
-                  resolve(tokenBalance)
-                })
+
+            if (chain === chainType.solana) {
+              const splAccountAddress = solTokenAddress || await fetchSPLAccount({ address }, contractAddress)
+      
+              const amount = await solanaGetBalance(splAccountAddress, true, null, isGetRawAmount)
+              resolve(amount)
+            }else{
+              const chainGenerate = chain
+              const web3 = this['web3' + chainGenerate]
+      
+              if (!web3) {
+                this['web3' + chainGenerate] = genWeb3(chain, false)
               }
-            }).catch(() => {
-              resolve(0)
-            })
+      
+              const contract = genContract(web3, ERC20, contractAddress)
+      
+              contract.methods.balanceOf(address).call().then(balance => {
+                if (isGetRawAmount) return resolve(balance)
+                if (decimalToken) {
+                  const tokenBalance = convertWeiToBalance(balance, decimalToken)
+                  resolve(tokenBalance)
+                } else {
+                  contract.methods.decimals().call().then(decimal => {
+                    const tokenBalance = convertWeiToBalance(balance, decimal)
+                    resolve(tokenBalance)
+                  }).catch(() => {
+                    const tokenBalance = convertWeiToBalance(balance, 18)
+                    resolve(tokenBalance)
+                  })
+                }
+              }).catch(() => {
+                resolve(0)
+              })
+            }
+
+            
           } catch (err) {
             resolve(0)
           }
@@ -358,12 +370,21 @@ export class WalletServices {
       async fetchMainBalance (address, chain) {
         return new Promise(async (resolve, reject) => {
           try {
-             let block = 'latest'
-            this['web3' + chain].eth.getBalance(address).then(async (response) => {
-              resolve(convertWeiToBalance(response))
-            }).catch((errr) => {
-              resolve(0)
-            })
+
+            if (chain === chainType.solana) {
+              const connectionSolana = genConnectionSolana()
+              const balance = await connectionSolana.getBalance(new PublicKey(address))
+              resolve(convertWeiToBalance(balance, 9))
+            } else{
+
+              let block = 'latest'
+              this['web3' + chain].eth.getBalance(address).then(async (response) => {
+                resolve(convertWeiToBalance(response))
+              }).catch((errr) => {
+                resolve(0)
+              })
+            }
+
           } catch (error) {
             resolve(0)
           }
