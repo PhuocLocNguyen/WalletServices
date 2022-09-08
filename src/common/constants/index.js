@@ -1,13 +1,16 @@
+import  get  from "lodash/get"
 import { chainType } from "./chainType"
 
 export const env = {
-    API_URL: 'https://development.coin98.services/api/',
-    // API_URL: 'https://production.coin98.services/api/',
+    // API_URL: 'https://development.coin98.services/api/',
+    API_URL: 'https://api.coin98.com/api/',
     SUPPORT_API: 'https://information.coin98.services/api/',
     NODE_ENV: 'local'
 }
 
 export const APP_VERSION = '1.0.0'
+
+export const isDapp = get(window, 'coin98.isMobile')
 
 export const COIN_IMAGE = {
     CUSDC98: 'https://coin98.s3.ap-southeast-1.amazonaws.com/Coin/CUSDC98.png',

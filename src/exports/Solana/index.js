@@ -4,7 +4,7 @@ import BufferLayout from 'buffer-layout'
 import { sleep, convertBalanceToWei, convertWeiToBalance, getLength, roundingNumber, upperCase } from '../../common/function'
 import nacl from 'tweetnacl'
 import { derivePath } from 'ed25519-hd-key'
-import { settingReduxRefSOL } from '../../common/constants'
+import { isDapp, settingReduxRefSOL } from '../../common/constants'
 // Serum Market V3
 import { OpenOrders, _OPEN_ORDERS_LAYOUT_V2, MARKET_STATE_LAYOUT_V3 } from '@project-serum/serum/lib/market'
 import { publicKeyLayout } from '@project-serum/serum/lib/layout'
@@ -18,6 +18,7 @@ import {
 } from '@bonfida/spl-name-service'
 import { unstopDomainResolver, ZERO_ADDRESS, convertBase58, generateSeed } from '../../controller/Web3/evm'
 import { DeviceUUID } from 'device-uuid'
+import { get } from 'lodash'
 
 const bs58 = require('bs58')
 
@@ -87,18 +88,22 @@ export function genConnectionSolana (isSerum) {
   if (window.wallet) {
     const connectionSolana = new Connection(isSerum
       ? 'https://solana-api.projectserum.com'
-      // : 'https://ssc-dao.genesysgo.net/', {
-      : 'https://wallet.coin98.com/rpcsolana', {
-      commitment: 'recent',
-      httpHeaders: {
-        authority: 'coin98.com',
-        Version: '1.1.0',
-        Authorization: 'Bearer token',
-        Signature: 'c26340d5243d802f03de751b9cbc049557ad0a14296aacf4a37dc7399adbe65c',
-        origin: 'https://wallet.coin98.com',
-        referer: 'https://wallet.coin98.com'
-      }
-    })
+      : 'https://information.coin98.com/api/solanaV4', 
+      {
+        commitment: 'recent',
+        headers:{
+          development:'coin98'
+        },
+        httpHeaders: {
+          development: 'coin98',
+          authority: 'coin98.com',
+          Version: '1.0',
+          Authorization: 'Bearer token',
+          Signature: 'c26340d5243d802f03de751b9cbc049557ad0a14296aacf4a37dc7399adbe65c',
+          origin: 'https://wallet.coin98.com',
+          referer: 'https://wallet.coin98.com'
+        }
+      })
     return connectionSolana
   }
 }
@@ -262,6 +267,13 @@ export function createSolanaWallet (seed, isSollet, privateKey) {
 
 export async function genOwnerSolana (wallet, deviceId) {
   try {
+
+
+    if (isDapp) {
+      const publicKey = new PublicKey(wallet?.address)
+      return { publicKey }
+    }
+
     let privateKey, seed
 
     const uuid = new DeviceUUID().get()
@@ -1160,6 +1172,65 @@ export async function postBaseSendTxs (connection, transactions, signer, isWaitD
   })
 }
 
+export async function postBaseSendSolanaNew ({
+  addressWallet,
+  connection,
+  transactions,
+  signer,
+  isWaitDone,
+  callBack,
+  callBackFinal,
+  dataReturn
+}) {
+  try {
+    let action = 'sendTransaction'
+    if (isDapp) {
+      const publicKey = new PublicKey(addressWallet)
+      transactions.feePayer = publicKey
+      transactions.recentBlockhash = (
+        await connection.getRecentBlockhash('max')
+      ).blockhash
+      transactions = await signTransaction(transactions)
+      if (signer.length > 1) {
+        const getSignerValid = signer.slice().filter((it) => it.secretKey)
+        transactions.partialSign(...getSignerValid)
+      }
+      transactions = transactions.serialize()
+      action = 'sendRawTransaction'
+    }
+
+    const tx = await connection[action](transactions, signer, {
+      skipPreflight: false,
+      preflightCommitment: 'confirmed'
+    }).catch((err) => {
+      console.log("🚀 ~ file: index.js ~ line 1203 ~ genConnectionSolana ~ err", err)
+      const data = JSON.stringify(get(err, 'logs', ''))
+      return { isErr: true, data: encodeMessErr(data) }
+    })
+    const { isErr } = tx
+    if (isErr) {
+      return tx
+    }
+    console.log({ tx })
+    callBack && callBack(tx, dataReturn)
+    connection.onSignatureWithOptions(
+      tx,
+      async () => {
+        if (isWaitDone) {
+          callBackFinal && callBackFinal(tx, dataReturn)
+        }
+      },
+      {
+        commitment: 'confirmed'
+      }
+    )
+    return tx
+  } catch (err) {
+    console.log('txs solana err: ', err)
+    return { isErr: true, data: encodeMessErr(err) }
+  }
+}
+
 export async function awaitTransactionSignatureConfirmation (
   connection,
   txid,
@@ -1230,16 +1301,30 @@ export async function awaitTransactionSignatureConfirmation (
   return result
 }
 
-export async function signTransaction (transaction, wallet) {
-  const bs58 = require('bs58')
+// export async function signTransaction (transaction, wallet) {
+//   const bs58 = require('bs58')
 
-  const params = bs58.encode(transaction.serializeMessage())
+//   const params = bs58.encode(transaction.serializeMessage())
 
-  const signature = await solanaSignDapp(wallet, params)
-  const sig = bs58.decode(signature)
-  const publicKey = new PublicKey(wallet.address)
-  transaction.addSignature(publicKey, sig)
-  return transaction
+//   const signature = await solanaSignDapp(wallet, params)
+//   const sig = bs58.decode(signature)
+//   const publicKey = new PublicKey(wallet.address)
+//   transaction.addSignature(publicKey, sig)
+//   return transaction
+// }
+
+export async function signTransaction (transaction) {
+  return window?.coin98?.sol
+    .request({ method: 'sol_sign', params: [transaction] })
+    .then((res) => {
+      const sig = bs58.decode(res.signature)
+      const publicKey = new PublicKey(res.publicKey)
+      transaction.addSignature(publicKey, sig)
+      return transaction
+    })
+    .catch((err) => {
+      console.log({ err })
+    })
 }
 
 export const createAtaSol = async (connection, owner, transaction, amount) => {
