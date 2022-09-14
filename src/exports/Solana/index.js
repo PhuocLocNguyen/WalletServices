@@ -17,7 +17,8 @@ import {
   NameRegistryState
 } from '@bonfida/spl-name-service'
 import { unstopDomainResolver, ZERO_ADDRESS, convertBase58, generateSeed } from '../../controller/Web3/evm'
-import { DeviceUUID } from 'device-uuid'
+// import { DeviceUUID } from 'device-uuid'
+
 import { get } from 'lodash'
 
 const bs58 = require('bs58')
@@ -276,7 +277,7 @@ export async function genOwnerSolana (wallet, deviceId) {
 
     let privateKey, seed
 
-    const uuid = new DeviceUUID().get()
+    const uuid = await import('device-uuid').then(mod => mod.DeviceUUID().get())
 
     if (getLength(wallet.privateKey) === 0) {
       const decryptMnemonic = await window.coin98?.provider.request({ method: 'aes_decrypt_coin98', params: { data: wallet.mnemonic, deviceId, uuid } })
