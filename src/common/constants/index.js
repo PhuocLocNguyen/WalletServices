@@ -10,7 +10,7 @@ export const env = {
 
 export const APP_VERSION = '1.0.0'
 
-export const isDapp = get(window, 'coin98.isMobile')
+export const isDapp = typeof window !== 'undefined' ? get(window, 'coin98.isMobile') : false
 
 export const COIN_IMAGE = {
     CUSDC98: 'https://coin98.s3.ap-southeast-1.amazonaws.com/Coin/CUSDC98.png',
