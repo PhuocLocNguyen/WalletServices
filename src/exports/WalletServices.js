@@ -25,6 +25,7 @@ export class WalletServices {
     constructor () {
         this.setting = SETTING_LOCAL
         this.coinLocal = null
+        this.solanaToken = null
 
         this.findCoingeckoData = this.findCoingeckoData.bind(this)
         this.findCoinGeckoPrice = this.findCoinGeckoPrice.bind(this)
@@ -47,7 +48,7 @@ export class WalletServices {
         this.checkIsReady()
     }
 
-    async checkIsReady ({isNoNFT}) {
+    async checkIsReady ({isNoNFT, isSolana}) {
         try {
         WEB3_CHAIN.map(item => {
             const web3Only = genWeb3(item)
@@ -60,6 +61,7 @@ export class WalletServices {
           !isNoNFT && this.refreshInformationNFT()
           await this.refreshCoinData()
           await this.refreshFetchData()
+          isSolana ? await this.refreshCoinSolana() :  ''
         }catch (error) {
             return false
         }
@@ -86,6 +88,15 @@ export class WalletServices {
         const listCoin = this.coinLocal[chain] || []
         return listCoin.find(item => lowerCase(item.address) === lowerCase(address))
       }
+
+    getCoinSolana () {
+        return this.solanaToken
+      }
+    
+    findCoinSolana (fMint) {
+        const findCoin = this.solanaToken.find(dataCoin => get(dataCoin, 'mintAddress', get(dataCoin, 'address')) === fMint)
+        return findCoin
+      }
     
 
     findSetting (chain) {
@@ -99,6 +110,17 @@ export class WalletServices {
         }
         return info
       }
+
+  async refreshCoinSolana () {
+    const oldData = await getItemStorage('solanaTokenV2')
+    this.solanaToken = oldData
+
+    const response = await BaseAPI.getData('solanaToken')
+    if (response) {
+      setItemStorage(response, 'solanaTokenV2')
+      this.solanaToken = response
+    }
+  }
 
      
   async refreshInformationNFT () {
