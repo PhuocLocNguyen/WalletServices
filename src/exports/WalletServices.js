@@ -11,7 +11,7 @@ import BaseAPI from "../controller/API/BaseAPI"
 import { ADDRESS_MAIN_COIN, COIN_IMAGE } from "../common/constants"
 import { KEY_STORE } from "../common/constants/keystore"
 import ERC721 from "../controller/ABI/ERC721"
-import { fetchSPLAccount, genConnectionSolana, solanaGetBalance } from "../exports/Solana"
+import { fetchSPLAccount, genConnectionSolana, parseTokenAccountData, solanaGetBalance } from "../exports/Solana"
 import { PublicKey } from '@solana/web3.js'
 
 const CHAIN_DATA_VALUES = Object.values(CHAIN_DATA)
@@ -38,7 +38,7 @@ export class WalletServices {
         this.refreshInformationNFT = this.refreshInformationNFT.bind(this)
         this.fetchNFT = this.fetchNFT.bind(this)
         this.fetchNFTEVMBalances = this.fetchNFTEVMBalances.bind(this)
-
+        this.getTokenSolanaAddress = this.getTokenSolanaAddress.bind(this)
 
 
     }
@@ -228,6 +228,62 @@ export class WalletServices {
           })
         } catch (err) {
           console.log('Refresh CoinData ', err)
+        }
+      }
+
+
+      async getTokenSolanaAddress (address) {
+        try {
+          const connection = genConnectionSolana()
+    
+          const balanceSOL = convertWeiToBalance(await connection.getBalance(new PublicKey(address)), 9)
+    
+          const accountToken = await connection.getTokenAccountsByOwner(new PublicKey(address),
+            { programId: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA') })
+          if (getLength(accountToken.value) > 0) {
+            const allAccount = accountToken.value.map(item => {
+              const { amount, mint } = parseTokenAccountData(item.account.data)
+    
+              const fMint = mint.toString()
+    
+              const findCoinDecimals = this.solanaToken.find(dataCoin => dataCoin.mintAddress === fMint)
+    
+              const coinDecimal = findCoinDecimals ? (findCoinDecimals.decimals || 6) : 6
+    
+              const amountToken = parseFloat(convertWeiToBalance(amount, coinDecimal))
+    
+              if (amountToken > 0) {
+                const findCoin = this.solanaToken.find(dataCoin => dataCoin.mintAddress === fMint)
+    
+                if (findCoin && findCoin.symbol !== 'SOL') {
+                  return {
+                    tokenInfo: {
+                      cgkId: findCoin.id,
+                      address: fMint,
+                      symbol: findCoin.symbol,
+                      name: findCoin.name,
+                      decimals: coinDecimal,
+                      image: findCoin.icon
+                    },
+                    baseAddress: item.pubkey.toString(),
+                    balance: amountToken
+                  }
+                }
+                return null
+              } else {
+                return null
+              }
+            })
+    
+            const finalData = allAccount.filter(item => item)
+    
+            return [{ tokenInfo: { symbol: 'SOL' }, balance: balanceSOL }, ...finalData]
+          } else {
+            return [{ tokenInfo: { symbol: 'SOL' }, balance: balanceSOL }]
+          }
+        } catch (error) {
+          console.log('🚀 ~ file: WalletServices.js ~ line 1132 ~ WalletServices ~ getTokenSolanaAddress ~ error', error)
+          return null
         }
       }
 
