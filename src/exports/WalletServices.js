@@ -4,7 +4,7 @@ import { SupportAPI } from "../controller/API/SupportAPI"
 import C98Balances from '../controller/ABI/C98Balances'
 import { genContract, genWeb3, getTokenInfo } from "../controller/Web3/evm"
 import { getItemStorage, getLength, lowerCase, setItemStorage } from '../common/function/utils'
-import { convertWeiToBalance, scientificToDecimal } from "../common/function"
+import { convertWeiToBalance, renderAMMImage, scientificToDecimal, splitAddress, upperCase } from "../common/function"
 import ERC20 from "../controller/ABI/ERC20"
 import { chainType } from "../common/constants/chainType"
 import BaseAPI from "../controller/API/BaseAPI"
@@ -39,6 +39,7 @@ export class WalletServices {
         this.fetchNFT = this.fetchNFT.bind(this)
         this.fetchNFTEVMBalances = this.fetchNFTEVMBalances.bind(this)
         this.getTokenSolanaAddress = this.getTokenSolanaAddress.bind(this)
+        this.fetchAllowance = this.fetchAllowance.bind(this)
 
 
     }
@@ -798,5 +799,61 @@ export class WalletServices {
           return []
         }
       }
+
+      async fetchAllowance (address, chain, tokenListCheck, spender, contractType) {
+        return new Promise(async (resolve, reject) => {
+          if (WEB3_CHAIN.includes(chain)) {
+            const tokenData = this.coinLocal[chain]
+            this['contractBalance' + chain].methods.allowances([address], tokenListCheck, spender).call().then(async (resultData) => {
+              const mapData = resultData.map(async (item, index) => {
+                if (item === '0') return null
+                const tokenAddress = tokenListCheck[index]
+                const tokenCheck = tokenData.find(itm => lowerCase(itm.address) === lowerCase(tokenAddress))
+    
+                const data = {
+                  _id: spender[index] + tokenAddress + chain,
+                  chain,
+                  balance: item,
+                  type: contractType[index] || { address: spender[index], name: splitAddress(spender[index], false, 5) },
+    
+                  tokenInfo: {
+                    address: tokenAddress,
+                    decimals: 18,
+                    image: renderAMMImage({ address: tokenAddress }, chain)
+                  }
+                }
+                if (tokenCheck) {
+                  data.tokenInfo = {
+                    cgkId: tokenCheck.cgkId,
+                    address: tokenCheck.address,
+                    symbol: tokenCheck.symbol,
+                    name: tokenCheck.name,
+                    decimals: tokenCheck.decimal,
+                    image: tokenCheck.image
+                  }
+                } else {
+                  const tokenInfo = await getTokenInfo(tokenAddress, chain)
+                  if (tokenInfo) {
+                    data.tokenInfo = {
+                      address: tokenAddress,
+                      symbol: tokenInfo.symbol,
+                      name: tokenInfo.name,
+                      decimals: tokenInfo.decimals,
+                      image: renderAMMImage({ address: tokenAddress }, chain)
+                    }
+                  }
+                }
+                return data
+              })
+              const finalReturn = await Promise.all(mapData)
+    
+              resolve(finalReturn.filter(item => item))
+            }).catch((err) => {
+              resolve([])
+            })
+          }
+        })
+      }
+    
 
 }

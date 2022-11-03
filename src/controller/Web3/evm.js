@@ -117,4 +117,8 @@ export const unstopDomainResolver = (domain, chain, currency) => {
     return gasPrice
   }
 
+  export const convertCheckSUM = (address) => {
+    return Web3.utils.toChecksumAddress(address)
+  }
+
 

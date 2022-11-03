@@ -1,4 +1,6 @@
 import bigdecimal from 'bigdecimal'
+import { convertCheckSUM } from '../../controller/Web3/evm'
+import { chainType } from '../constants/chainType'
 
 
 export const upperCase = (value) => {
@@ -85,4 +87,49 @@ export const scientificToDecimal = (num) => {
     num = -num
   }
   return num
+}
+
+export const splitAddress = (address, isVersion2, numSplit) => {
+  if (address) {
+    return address.substring(0, isVersion2 ? 4 : (numSplit || 10)) + (isVersion2 ? ' **** **** ' : ' ... ') + address.substring(getLength(address) - (isVersion2 ? 4 : (numSplit || 10)), getLength(address))
+  } else {
+    return ''
+  }
+}
+
+export const renderAMMImage = (coin, chain = chainType.ether) => {
+  if (coin) {
+    if (getLength(coin.ownLogo) > 0) {
+      return coin.ownLogo
+    }
+
+    const isLogoURI = getLength(coin.logoURI) > 0 || getLength(coin.icon)
+    const url = coin.logoURI || coin.icon
+    if (isLogoURI && !url.includes('.svg')) {
+      if (url.includes('ipfs')) {
+        const idIPFS = url.replace('ipfs://', '')
+        return `https://cloudflare-ipfs.com/ipfs/${idIPFS}`
+      }
+      if (url.includes('https')) {
+        return url
+      }
+    }
+
+    if (isLogoURI) {
+      return url
+    }
+
+    let nameChain = 'ethereum'
+
+    switch (chain) {
+    case chainType.binanceSmart:
+      nameChain = 'smartchain'
+      break
+    case chainType.heco:
+      nameChain = 'heco'
+      break
+    }
+
+    return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/${nameChain}/assets/${convertCheckSUM(coin.address)}/logo.png`
+  }
 }
