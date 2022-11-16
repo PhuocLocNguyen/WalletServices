@@ -952,6 +952,44 @@ export async function placeOrderSerumV3 (
   })
 }
 
+export async function createOldTokenAccount (wallet, deviceId, address) {
+  const connection = genConnectionSolana()
+  const owner = await genOwnerSolana(wallet, deviceId);
+  let signers = [owner]
+  const transaction = new Transaction()
+
+  const wSOLAccount = new SolAccount()
+
+        transaction.add(
+          SystemProgram.createAccount({
+            fromPubkey: owner.publicKey,
+            newAccountPubkey: wSOLAccount.publicKey,
+            lamports: 0.5 + 1e7,
+            space: ACCOUNT_LAYOUT.span,
+            programId: TOKEN_PROGRAM_ID
+          })
+        )
+        signers.push(wSOLAccount)
+
+        transaction.add(
+          initializeAccount({
+            account: wSOLAccount.publicKey,
+            mint: new PublicKey(address),
+            owner: owner.publicKey
+          })
+        )
+
+        const txSign = await postBaseSendSolanaNew({
+          addressWallet: wallet?.address,
+          connection,
+          transactions: transaction,
+          signer: signers,
+          isWaitDone: true
+        })
+        console.log("🚀 ~ file: index.js ~ line 989 ~ createOldTokenAccount ~ txSign", txSign)
+
+}
+
 // For migrate old token SPL
 // Check amount > 0 only and move fund not close old account
 export async function findOldTokenAccount (connect, address) {
