@@ -1270,6 +1270,67 @@ export async function postBaseSendSolanaNew ({
   }
 }
 
+export async function postBaseSendSolanaRemake({
+  addressWallet,
+  connection,
+  transactions,
+  signer,
+  isWaitDone,
+  callBackDone,
+  callBackFail,
+  dataReturn
+}){
+  return new Promise(async (resolve, reject) => {
+    try{
+    let action = 'sendTransaction'
+    if (isDapp) {
+      const publicKey = new PublicKey(addressWallet)
+      transactions.feePayer = publicKey
+      transactions.recentBlockhash = (
+        await connection.getRecentBlockhash('max')
+      ).blockhash
+      transactions = await signTransaction(transactions)
+      if (signer.length > 1) {
+        const getSignerValid = signer.slice().filter((it) => it.secretKey)
+        transactions.partialSign(...getSignerValid)
+      }
+      transactions = transactions.serialize()
+      action = 'sendRawTransaction'
+    }
+
+
+
+    const tx = await connection[action](transactions, signer, {
+      skipPreflight: false,
+      preflightCommitment: 'confirmed'
+    })
+
+    if(!isWaitDone){
+      callBackDone && callBackDone(tx, dataReturn)
+    }
+
+
+    connection.onSignatureWithOptions(
+      tx,
+      async () => {
+        if (isWaitDone) {
+          callBackDone && callBackDone(tx, dataReturn)
+          resolve('ok')
+        }
+      },
+      {
+        commitment: 'confirmed'
+      }
+    )
+    }catch(err){
+      callBackFail && callBackFail(encodeMessErr(err))
+      reject(encodeMessErr(err))
+    }
+
+  })
+  
+}
+
 export async function awaitTransactionSignatureConfirmation (
   connection,
   txid,
