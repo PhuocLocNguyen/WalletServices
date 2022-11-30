@@ -1161,7 +1161,7 @@ export function encodeMessErr (mess) {
   if (stringResult.includes('Error')) {
     let mess = txsFail
     switch (true) {
-    case stringResult.includes('Insufficient funds') :
+    case  stringResult.includes('0x1') || stringResult.includes('Insufficient funds') :
       mess = 'tradeErrFund'
       break
     case stringResult.includes('size too small'):
