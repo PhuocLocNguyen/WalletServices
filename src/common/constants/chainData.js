@@ -261,7 +261,7 @@ export const CHAIN_DATA = {
       symbol: 'SOL',
       chain: chainType.solana,
       trcName: 'SOL SPL',
-      rpcURL: 'https://coin98.genesysgo.net',
+      rpcURL: 'https://information.coin98.com/solanaV4',
       rpcURLSerum: 'https://solana-api.projectserum.com',
       scan: 'https://solscan.io'
     },
