@@ -1223,6 +1223,14 @@ export async function postBaseSendSolanaNew ({
 }) {
   try {
     let action = 'sendTransaction'
+
+    if(!isDapp){
+      const requestUnlock = await window.coin98.provider.request({method: 'request_unlock'});
+      if(!get(requestUnlock, 'isUnlocked', false)){
+        return { isErr: true, data: 'unlockFail' }
+      }
+    }
+
     if (isDapp) {
       const publicKey = new PublicKey(addressWallet)
       transactions.feePayer = publicKey
@@ -1237,6 +1245,8 @@ export async function postBaseSendSolanaNew ({
       transactions = transactions.serialize()
       action = 'sendRawTransaction'
     }
+
+    
 
     const tx = await connection[action](transactions, signer, {
       skipPreflight: false,
