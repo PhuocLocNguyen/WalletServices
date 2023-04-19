@@ -24,7 +24,7 @@ const SUPPORTED_NFT = CHAIN_DATA_VALUES.filter(itm => itm.isSupportedNFT).map(it
 export class WalletServices {
     constructor () {
         this.setting = SETTING_LOCAL
-        this.coinLocal = null
+        this.coinLocal = {}
         this.solanaToken = null
 
         this.findCoingeckoData = this.findCoingeckoData.bind(this)
