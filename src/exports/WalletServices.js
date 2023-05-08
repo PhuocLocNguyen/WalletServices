@@ -356,7 +356,7 @@ export class WalletServices {
       async getDataTokens (chain, address, listToken) {
         if (chain === chainType.ether) {
           const result = await BaseAPI.getData(`fetchEther/${address}`)
-          return result && result.tokens ? result.tokens.map(item => ({ ...item, balance: convertWeiToBalance(item.balance, item.tokenInfo.decimals) })) : []
+          return result && result.tokens ? result.tokens : []
         } else {
           if (this['contractBalance' + chain]) {
             const result = await this.getWeb3BalancesContract(chain, address, listToken)
