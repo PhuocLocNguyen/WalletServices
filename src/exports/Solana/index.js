@@ -1,7 +1,7 @@
 import { PublicKey, TransactionInstruction, Message, Keypair as SolAccount, SYSVAR_RENT_PUBKEY, Transaction, Connection, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { Token } from '@solana/spl-token'
 import BufferLayout from 'buffer-layout'
-import { sleep, convertBalanceToWei, convertWeiToBalance, getLength, roundingNumber, upperCase } from '../../common/function'
+import { sleep, convertWeiToBalance, getLength, roundingNumber } from '../../common/function'
 import nacl from 'tweetnacl'
 import { derivePath } from 'ed25519-hd-key'
 import { isDapp, settingReduxRefSOL } from '../../common/constants'
@@ -10,21 +10,13 @@ import { OpenOrders, _OPEN_ORDERS_LAYOUT_V2, MARKET_STATE_LAYOUT_V3 } from '@pro
 import { publicKeyLayout } from '@project-serum/serum/lib/layout'
 import { TOKEN_MINTS, DexInstructions } from '@project-serum/serum'
 import { CHAIN_DATA } from '../../common/constants/chainData'
-import { chainType } from '../../common/constants/chainType'
-import {
-  getHashedName,
-  getNameAccountKey,
-  NameRegistryState
-} from '@bonfida/spl-name-service'
-import { unstopDomainResolver, ZERO_ADDRESS, convertBase58, generateSeed } from '../../controller/Web3/evm'
+
+import { convertBase58, generateSeed } from '../../controller/Web3/evm'
 // import { DeviceUUID } from 'device-uuid'
 
 import { get } from 'lodash'
 
 const bs58 = require('bs58')
-
-const NAME_AUCTIONNING = new PublicKey('jCebN34bUfdeUYJT13J1yG16XWQpt5PDx6Mse9GUqhR')
-const NAME_OFFERS_ID = new PublicKey('85iDfUvr3HJyLM2zcq5BXSiDvUWfw6cSE1FfNBo8Ap29')
 
 export const FEE_SOL = 0.000005
 
@@ -457,94 +449,6 @@ export async function solanaGetBalance (address, contract, connection, isGetRawA
 
 
 // Optimize function send for SPL and SOL use for multiple and single
-export async function sendTransactionSolana (wallet, sendContract, sToAddress, amount, connection, owner, transaction, callback) {
-  const connectionSolana = connection || genConnectionSolana()
-
-  const sendOwner = owner || await genOwnerSolana(wallet)
-  // if pass transaction it will merge from multiple txs
-  const transactions = transaction || []
-
-  let toAddress = sToAddress
-
-  const ensResolver = await namingToAddress(toAddress)
-  if (ensResolver) {
-    toAddress = ensResolver
-  }
-
-  // Resolver
-
-  const unstopResolver = await unstopDomainResolver(toAddress, chainType.solana, upperCase(sendContract?.symbol))
-
-  if (unstopResolver && unstopResolver !== ZERO_ADDRESS) {
-    toAddress = unstopResolver
-  }
-
-  const toPubKey = new PublicKey(toAddress)
-
-  // Send SPL
-  if (sendContract) {
-    const mintPubkey = new PublicKey(sendContract.address)
-
-    const destinationAccountInfo = await connectionSolana.getAccountInfo(toPubKey)
-
-    const stateSend = {
-      source: new PublicKey(sendContract.baseAddress),
-      owner: sendOwner.publicKey,
-      amount: Math.round(convertBalanceToWei(amount, sendContract.decimal))
-    }
-
-    // Check associated token account
-    if (!!destinationAccountInfo && destinationAccountInfo.owner.equals(TOKEN_PROGRAM_ID)) {
-      stateSend.destination = toPubKey
-    } else {
-      // Check other SPL in receiver
-      const accountInfo = await connectionSolana.getTokenAccountsByOwner(toPubKey, { mint: mintPubkey })
-      if (accountInfo && accountInfo.value.length > 0) {
-        // Check priority send to ATA first
-        const ata = await findAssociatedTokenAddress(toPubKey, mintPubkey)
-        const isCreatedATA = accountInfo.value.find(info => info.pubkey.equals(ata))
-        stateSend.destination = isCreatedATA ? ata : accountInfo.value[0].pubkey
-      } else {
-        // Send and create new Token account solana
-        const ata = await findAssociatedTokenAddress(toPubKey, mintPubkey)
-
-        const createTxs = Token.createAssociatedTokenAccountInstruction(
-          ASSOCIATED_TOKEN_PROGRAM_ID,
-          TOKEN_PROGRAM_ID,
-          mintPubkey,
-          ata,
-          toPubKey,
-          sendOwner.publicKey
-        )
-        transactions.push(createTxs)
-
-        stateSend.destination = ata
-      }
-    }
-
-    transactions.push(transferEncode(stateSend))
-  } else {
-    // Send SOL
-    const solAddress = await checkSOLfromSPLAccount(toAddress)
-
-    transactions.push(SystemProgram.transfer({
-      fromPubkey: sendOwner.publicKey,
-      toPubkey: new PublicKey(solAddress),
-      lamports: Math.round(convertBalanceToWei(amount, 9))
-    }))
-  }
-  // Send merged if multiple
-  if (transaction) {
-    return transactions
-  } else {
-    const hash = await postBaseSendTxs(connectionSolana, transactions, [sendOwner], false, undefined, callback)
-    if (messFail.includes(hash)) {
-      return { isError: true, mess: hash }
-    } else {
-      return { isError: false, mess: hash }
-    }
-  }
-}
 
 export const decodeSolana = (buffer) => {
   try {
@@ -698,35 +602,6 @@ export async function closeOpenOrderSerumDEX (wallet, openOrder, marketAddress) 
     SERUM_CACHE_ACCOUNT[keyData] = null
 
     return hash
-  }
-}
-
-export async function namingToAddress (naming) {
-  if (naming && naming.includes('.sol')) {
-    try {
-      const domainName = naming.replace('.sol', '')
-      const hashedName = await getHashedName(domainName)
-      const domainKey = await getNameAccountKey(
-        hashedName,
-        undefined,
-        SOL_TLD_AUTHORITY
-      )
-
-      const connection = genConnectionSolana()
-
-      const registry = await NameRegistryState.retrieve(connection, domainKey)
-
-      const owner = registry.owner.toString()
-
-      const accInformation = await connection.getAccountInfo(new PublicKey(owner))
-
-      const isEscrowOwner = !!accInformation?.owner.equals(NAME_OFFERS_ID) || !!accInformation?.owner.equals(NAME_AUCTIONNING)
-      if (isEscrowOwner) return false
-
-      return owner
-    } catch (error) {
-      return false
-    }
   }
 }
 
