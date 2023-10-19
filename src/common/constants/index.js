@@ -68,7 +68,8 @@ export const COIN_IMAGE = {
     TFUEL: 'https://coin98.s3.ap-southeast-1.amazonaws.com/Coin/TFUEL.png',
     ALGO: 'https://coin98.s3.ap-southeast-1.amazonaws.com/Coin/algorand.png',
     CSPR: 'https://coin98.s3.ap-southeast-1.amazonaws.com/Coin/casper.png',
-    FX: 'https://coin98.s3.ap-southeast-1.amazonaws.com/fx.png'
+    FX: 'https://coin98.s3.ap-southeast-1.amazonaws.com/fx.png',
+    KUB: 'https://assets.coingecko.com/coins/images/15760/standard/KUB.png?1696515385'
   }
 
 

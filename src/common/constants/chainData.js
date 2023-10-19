@@ -3,6 +3,27 @@ import { ALGORAND_MIN_TX_FEE } from "../../controller/Library/Local/algo/constan
 import { chainType } from "./chainType";
 
 export const CHAIN_DATA = {
+  bitkub: {
+    isSupportedBaryon: true,
+    numChainId: 96,
+    chainId: '0x60',
+    isToken: true,
+    isSupportedNFT: true,
+    trcToken: 'KAP-20',
+    nftToken: 'KAP721',
+    isWeb3: true,
+    image: 'web_bitkub',
+    balances: '0x4d461b38d1753386D4d6797F79441Ed0adC2f6F8',
+
+    id: 'bitkub-coin',
+    name: 'Bitkub Chain',
+    shortName: 'Bitkub',
+    imageLink: COIN_IMAGE.KUB,
+    symbol: 'KUB',
+    chain: 'bitkub',
+    rpcURL: 'https://rpc.bitkubchain.io',
+    scan: 'https://www.bkcscan.com'
+  },
   '97': {
     kind: 'evm',
     key: '97',

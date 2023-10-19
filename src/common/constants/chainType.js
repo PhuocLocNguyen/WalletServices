@@ -70,5 +70,6 @@ export const chainType = {
   moonbeam: 'moonbeam', //
   algorand: 'algorand',
   functionX: 'functionX',
-  casper: 'casper'
+  casper: 'casper',
+  bitkub: 'bitkub'
 }
