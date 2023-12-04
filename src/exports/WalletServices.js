@@ -61,7 +61,7 @@ export class WalletServices {
           })
           !isNoNFT && this.refreshInformationNFT()
           await this.refreshCoinData()
-          await this.refreshFetchData()
+          // await this.refreshFetchData()
           isSolana ? await this.refreshCoinSolana() :  ''
         }catch (error) {
             return false
