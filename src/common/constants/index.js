@@ -4,6 +4,7 @@ import { chainType } from "./chainType"
 export const env = {
     // API_URL: 'https://development.coin98.services/api/',
     API_URL: 'https://api.coin98.com/api/',
+    ADAPTER_URL: 'https://api.coin98.com/adapters/',
     SUPPORT_API: 'https://information.coin98.com/api/',
     NODE_ENV: 'local'
 }

@@ -8,6 +8,7 @@ import { convertWeiToBalance, renderAMMImage, scientificToDecimal, splitAddress,
 import ERC20 from "../controller/ABI/ERC20"
 import { chainType } from "../common/constants/chainType"
 import BaseAPI from "../controller/API/BaseAPI"
+import BaseAdapter from "../controller/API/BaseAdapter"
 import { ADDRESS_MAIN_COIN, COIN_IMAGE } from "../common/constants"
 import { KEY_STORE } from "../common/constants/keystore"
 import ERC721 from "../controller/ABI/ERC721"
@@ -115,12 +116,13 @@ export class WalletServices {
   async refreshCoinSolana () {
     const oldData = await getItemStorage('solanaTokenV2')
     this.solanaToken = oldData
-
-    const response = await BaseAPI.getData('solanaToken')
-    if (response) {
-      setItemStorage(response, 'solanaTokenV2')
-      this.solanaToken = response
-    }
+    
+    const getAllTokenSolana = await BaseAdapter.getData('wallet/spl')
+    const dataReplace = JSON.stringify(get(getAllTokenSolana, 'data') || [])
+      .replaceAll('"address"', '"mintAddress"')
+      .replaceAll('"image"', '"icon"')
+      .replaceAll('"cgkId"', '"id"')
+    this.solanaToken = JSON.parse(dataReplace)
   }
 
      
