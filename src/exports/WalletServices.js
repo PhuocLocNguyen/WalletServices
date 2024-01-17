@@ -122,6 +122,8 @@ export class WalletServices {
       .replaceAll('"address"', '"mintAddress"')
       .replaceAll('"image"', '"icon"')
       .replaceAll('"cgkId"', '"id"')
+      
+    setItemStorage(JSON.parse(dataReplace), 'solanaTokenV2')
     this.solanaToken = JSON.parse(dataReplace)
   }
 
