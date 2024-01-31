@@ -495,7 +495,7 @@ export class WalletServices {
           const chainData = CHAIN_DATA[chain]
     
           finalData.push({
-            price: this.findCoinGeckoPrice(chainData.id),
+            // price: this.findCoinGeckoPrice(chainData.id),
             address: ADDRESS_MAIN_COIN[chain],
             cgkId: chainData.id,
             symbol: chainData.symbol,
