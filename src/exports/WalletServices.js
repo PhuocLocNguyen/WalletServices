@@ -27,6 +27,7 @@ export class WalletServices {
         this.setting = SETTING_LOCAL
         this.coinLocal = {}
         this.solanaToken = null
+        this.coinGecko = []
 
         this.findCoingeckoData = this.findCoingeckoData.bind(this)
         this.findCoinGeckoPrice = this.findCoinGeckoPrice.bind(this)
@@ -495,7 +496,7 @@ export class WalletServices {
           const chainData = CHAIN_DATA[chain]
     
           finalData.push({
-            // price: this.findCoinGeckoPrice(chainData.id),
+            price: this.findCoinGeckoPrice(chainData.id),
             address: ADDRESS_MAIN_COIN[chain],
             cgkId: chainData.id,
             symbol: chainData.symbol,
