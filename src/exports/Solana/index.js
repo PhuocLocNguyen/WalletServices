@@ -1094,7 +1094,8 @@ export async function postBaseSendSolanaNew ({
   isWaitDone,
   callBack,
   callBackFinal,
-  dataReturn
+  dataReturn,
+  skipPreflight = false
 }) {
   try {
     let action = 'sendTransaction'
@@ -1124,7 +1125,7 @@ export async function postBaseSendSolanaNew ({
     
 
     const tx = await connection[action](transactions, signer, {
-      skipPreflight: false,
+      skipPreflight,
       preflightCommitment: 'confirmed'
     }).catch((err) => {
       console.log("🚀 ~ file: index.js ~ line 1203 ~ genConnectionSolana ~ err", err)
