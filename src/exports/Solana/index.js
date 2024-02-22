@@ -81,7 +81,7 @@ export function genConnectionSolana (isSerum) {
   if (window.wallet) {
     const connectionSolana = new Connection(isSerum
       ? 'https://solana-api.projectserum.com'
-      : 'https://information.coin98.com/api/solanaV5', 
+      : 'https://information.coin98.com/api/solanaV4', 
       {
         commitment: 'recent',
         headers:{
