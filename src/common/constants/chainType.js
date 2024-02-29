@@ -71,5 +71,7 @@ export const chainType = {
   algorand: 'algorand',
   functionX: 'functionX',
   casper: 'casper',
-  bitkub: 'bitkub'
+  bitkub: 'bitkub',
+  ancient8: 'ancient8',
+  ancient8Mainnet: 'ancient8Mainnet',
 }
