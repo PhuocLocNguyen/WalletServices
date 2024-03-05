@@ -385,7 +385,7 @@ export class WalletServices {
                   const formatBalance = parseFloat(item)
                   if (formatBalance > 0) {
                     const tokenCheck = sliceTokenData[index]
-                    const decimals = tokenCheck.decimal || tokenCheck.decimals
+                    const decimals = tokenCheck?.decimal || tokenCheck?.decimals
                     
                     return {
                       balance: convertWeiToBalance(formatBalance, decimals),
