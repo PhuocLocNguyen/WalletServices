@@ -388,7 +388,7 @@ export class WalletServices {
                     const decimals = tokenCheck.decimal || tokenCheck.decimals
                     
                     return {
-                      balance: convertWeiToBalance(formatBalance, tokenCheck.decimal),
+                      balance: convertWeiToBalance(formatBalance, decimals),
                       tokenInfo: {
                         cgkId: tokenCheck.cgkId || tokenCheck.id,
                         address: tokenCheck.address,
