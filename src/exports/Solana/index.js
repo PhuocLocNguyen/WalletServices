@@ -1,4 +1,4 @@
-import { PublicKey, TransactionInstruction, Message, Keypair as SolAccount, SYSVAR_RENT_PUBKEY, Transaction, Connection, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js'
+import {ComputeBudgetProgram, PublicKey, TransactionInstruction, Message, Keypair as SolAccount, SYSVAR_RENT_PUBKEY, Transaction, Connection, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { Token } from '@solana/spl-token'
 import BufferLayout from 'buffer-layout'
 import { sleep, convertWeiToBalance, getLength, roundingNumber } from '../../common/function'
@@ -1095,7 +1095,8 @@ export async function postBaseSendSolanaNew ({
   callBack,
   callBackFinal,
   dataReturn,
-  skipPreflight = false
+  skipPreflight = false,
+  multiplyFeePriority = 100
 }) {
   try {
     let action = 'sendTransaction'
@@ -1122,8 +1123,61 @@ export async function postBaseSendSolanaNew ({
       action = 'sendRawTransaction'
     }
 
-    
+    // estimate gas
+    const UNIT_DEFAULT = 200_000
+    const FEE_DEFAULT = 100000
 
+    const getPriority = await connection.getRecentPrioritizationFees()
+    const currentFee = getPriority
+      .filter((fee) => fee?.prioritizationFee > 0)
+      .map((fee) => fee?.prioritizationFee)
+
+    const simulate = await connection.simulateTransaction(transactions)
+    const budgetUnitEst = get(simulate, 'value.unitsConsumed', UNIT_DEFAULT)
+    const feePriority = Math.max(...currentFee) * multiplyFeePriority
+
+    let transactionFeePriorityInstruction = null
+    let budgetUnitInstruction = null
+    let totalUnit = UNIT_DEFAULT
+
+    // set fee priority
+    if (feePriority <= FEE_DEFAULT) {
+      transactionFeePriorityInstruction =
+        ComputeBudgetProgram.setComputeUnitPrice({
+          microLamports: FEE_DEFAULT
+        })
+    } else {
+      transactionFeePriorityInstruction =
+        ComputeBudgetProgram.setComputeUnitPrice({
+          microLamports: feePriority
+        })
+    }
+
+    // set budget unit
+    if (budgetUnitEst <= UNIT_DEFAULT) {
+      budgetUnitInstruction = ComputeBudgetProgram.setComputeUnitLimit({
+        units: UNIT_DEFAULT
+      })
+    } else {
+      // example:
+      // budgetUnitEst = 285_000
+      // unitCalculate = 285_000 - 200_000 = 85_000
+      // result = 85_000 + 200_000 + 1_000 = 286_000
+      const UNIT_BUFFER = 1_000
+      const unitCalculate = budgetUnitEst - UNIT_DEFAULT
+      totalUnit = unitCalculate + UNIT_DEFAULT + UNIT_BUFFER
+      budgetUnitInstruction = ComputeBudgetProgram.setComputeUnitLimit({
+        units: totalUnit
+      })
+    }
+
+    transactions
+      .add(budgetUnitInstruction)
+      .add(transactionFeePriorityInstruction)
+
+
+    
+    //
     const tx = await connection[action](transactions, signer, {
       skipPreflight,
       preflightCommitment: 'confirmed'
