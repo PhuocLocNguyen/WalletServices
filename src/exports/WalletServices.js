@@ -14,6 +14,8 @@ import { KEY_STORE } from "../common/constants/keystore"
 import ERC721 from "../controller/ABI/ERC721"
 import { fetchSPLAccount, genConnectionSolana, parseTokenAccountData, solanaGetBalance } from "../exports/Solana"
 import { PublicKey } from '@solana/web3.js'
+import axios from 'axios'
+
 
 const CHAIN_DATA_VALUES = Object.values(CHAIN_DATA)
 const SETTING_LOCAL = CHAIN_DATA_VALUES.filter(itm => itm.rpcURL).reduce((a, v) => ({ ...a, [v.chain]: v.rpcURL }), {})
@@ -63,12 +65,20 @@ export class WalletServices {
           })
           !isNoNFT && this.refreshInformationNFT()
           await this.refreshCoinData()
+          await this.fetchBufferGasSolana()
           // await this.refreshFetchData()
           isSolana ? await this.refreshCoinSolana() :  ''
         }catch (error) {
             return false
         }
     }
+
+    async fetchBufferGasSolana () {
+      const numberMultiply = await axios.get('https://rapid.coin98.com/Config%2FbufferGas.json')
+      if (numberMultiply?.status === 200) {
+        this.multiplyFeePriority = numberMultiply?.data
+      }
+  }
 
     // find
 
@@ -80,6 +90,10 @@ export class WalletServices {
     findCoinGeckoPrice (cgkId) {
         const findInCgk = this.coinGecko.find((data) => data.id === cgkId)
         return get(findInCgk, 'current_price', 0)
+    }
+
+    getMultiplyFeePriority () {
+      return this.multiplyFeePriority || 100
     }
     
 
