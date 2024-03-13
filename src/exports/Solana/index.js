@@ -1108,9 +1108,10 @@ export async function postBaseSendSolanaNew ({
       }
     }
 
+    const publicKey = new PublicKey(addressWallet)
+    transactions.feePayer = publicKey
+
     if (isDapp) {
-      const publicKey = new PublicKey(addressWallet)
-      transactions.feePayer = publicKey
       transactions.recentBlockhash = (
         await connection.getRecentBlockhash('max')
       ).blockhash
