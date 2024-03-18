@@ -1096,12 +1096,9 @@ export async function postBaseSendSolanaNew ({
   callBackFinal,
   dataReturn,
   skipPreflight = false,
-  multiplyFeePriority
+  multiplyFeePriority = 100
 }) {
   try {
-
-    const newMultiplyFeePriority = multiplyFeePriority || (window?.wallet?.getMultiplyFeePriority() || 100)
-
     let action = 'sendTransaction'
 
     if(!isDapp){
@@ -1138,7 +1135,7 @@ export async function postBaseSendSolanaNew ({
 
     const simulate = await connection.simulateTransaction(transactions)
     const budgetUnitEst = get(simulate, 'value.unitsConsumed', UNIT_DEFAULT)
-    const feePriority = Math.max(...currentFee) * newMultiplyFeePriority
+    const feePriority = Math.max(...currentFee) * multiplyFeePriority
 
     let transactionFeePriorityInstruction = null
     let budgetUnitInstruction = null
