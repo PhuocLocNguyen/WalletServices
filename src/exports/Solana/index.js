@@ -1096,7 +1096,7 @@ export async function postBaseSendSolanaNew ({
   callBackFinal,
   dataReturn,
   skipPreflight = false,
-  multiplyFeePriority = 100
+  multiplyFeePriority = (window?.wallet?.getMultiplyFeePriority() || 100)
 }) {
   try {
     let action = 'sendTransaction'
