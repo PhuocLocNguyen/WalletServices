@@ -1122,7 +1122,6 @@ export async function postBaseSendSolanaNew ({
         const getSignerValid = signer.slice().filter((it) => it.secretKey)
         transactions.partialSign(...getSignerValid)
       }
-      transactions = transactions.serialize()
       action = 'sendRawTransaction'
     }
 
