@@ -1113,18 +1113,6 @@ export async function postBaseSendSolanaNew ({
     const publicKey = new PublicKey(addressWallet)
     transactions.feePayer = publicKey
 
-    if (isDapp || isHardwareWallet) {
-      transactions.recentBlockhash = (
-        await connection.getRecentBlockhash('max')
-      ).blockhash
-      transactions = isHardwareWallet ? await signTransactionLedgerSol({transactions, publicKey}) : await signTransaction(transactions)
-      if (signer.length > 1) {
-        const getSignerValid = signer.slice().filter((it) => it.secretKey)
-        transactions.partialSign(...getSignerValid)
-      }
-      action = 'sendRawTransaction'
-    }
-
     // estimate gas
     const UNIT_DEFAULT = 200_000
     const FEE_DEFAULT = 100000
@@ -1178,6 +1166,19 @@ export async function postBaseSendSolanaNew ({
       .add(transactionFeePriorityInstruction)
 
 
+    //
+
+    if (isDapp || isHardwareWallet) {
+      transactions.recentBlockhash = (
+        await connection.getRecentBlockhash('max')
+      ).blockhash
+      transactions = isHardwareWallet ? await signTransactionLedgerSol({transactions, publicKey}) : await signTransaction(transactions)
+      if (signer.length > 1) {
+        const getSignerValid = signer.slice().filter((it) => it.secretKey)
+        transactions.partialSign(...getSignerValid)
+      }
+      action = 'sendRawTransaction'
+    }
     
     //
 
