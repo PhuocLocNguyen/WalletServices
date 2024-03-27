@@ -1096,7 +1096,9 @@ export async function postBaseSendSolanaNew ({
   callBackFinal,
   dataReturn,
   skipPreflight = false,
-  multiplyFeePriority = 100
+  multiplyFeePriority = 100,
+  signTransactionLedgerSol,
+  isHardwareWallet
 }) {
   try {
     let action = 'sendTransaction'
@@ -1111,11 +1113,11 @@ export async function postBaseSendSolanaNew ({
     const publicKey = new PublicKey(addressWallet)
     transactions.feePayer = publicKey
 
-    if (isDapp) {
+    if (isDapp || isHardwareWallet) {
       transactions.recentBlockhash = (
         await connection.getRecentBlockhash('max')
       ).blockhash
-      transactions = await signTransaction(transactions)
+      transactions = isHardwareWallet ? await signTransactionLedgerSol({transactions, publicKey}) : await signTransaction(transactions)
       if (signer.length > 1) {
         const getSignerValid = signer.slice().filter((it) => it.secretKey)
         transactions.partialSign(...getSignerValid)
