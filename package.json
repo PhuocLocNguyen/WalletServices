@@ -1,6 +1,6 @@
 {
   "name": "walletservices",
-  "version": "1.5.5",
+  "version": "1.5.6",
   "description": "walletservices",
   "main": "src/index.js",
   "scripts": {

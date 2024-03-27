@@ -262,7 +262,7 @@ export async function genOwnerSolana (wallet, deviceId) {
   try {
 
 
-    if (isDapp) {
+    if (isDapp || wallet?.isHardwareWallet) {
       const publicKey = new PublicKey(wallet?.address)
       return { publicKey }
     }
