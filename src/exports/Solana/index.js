@@ -1181,14 +1181,34 @@ export async function postBaseSendSolanaNew ({
 
     
     //
-    const tx = await connection[action](transactions, signer, {
-      skipPreflight,
-      preflightCommitment: 'confirmed'
-    }).catch((err) => {
-      console.log("🚀 ~ file: index.js ~ line 1203 ~ genConnectionSolana ~ err", err)
-      const data = JSON.stringify(get(err, 'logs', ''))
-      return { isErr: true, data: encodeMessErr(data) }
-    })
+
+    let tx ;
+
+    if(action === 'sendRawTransaction'){
+
+      tx = await connection[action](transactions, {
+        skipPreflight,
+        preflightCommitment: 'confirmed'
+      }).catch((err) => {
+        console.log("🚀 ~ file: index.js ~ line 1203 ~ genConnectionSolana ~ err", err)
+        const data = JSON.stringify(get(err, 'logs', ''))
+        return { isErr: true, data: encodeMessErr(data) }
+      })
+
+    }else{
+      tx = await connection[action](transactions, signer, {
+        skipPreflight,
+        preflightCommitment: 'confirmed'
+      }).catch((err) => {
+        console.log("🚀 ~ file: index.js ~ line 1203 ~ genConnectionSolana ~ err", err)
+        const data = JSON.stringify(get(err, 'logs', ''))
+        return { isErr: true, data: encodeMessErr(data) }
+      })
+    }
+
+    //
+
+    
     const { isErr } = tx
     if (isErr) {
       return tx
