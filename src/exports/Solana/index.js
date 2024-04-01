@@ -77,28 +77,20 @@ const txsFail = 'txsFail'
 const pathSollet = 'm/44\'/501\'/0\'/0\''
 
 // Gen solana connection
-export function genConnectionSolana (isSerum) {
-  if (window.wallet) {
-    const connectionSolana = new Connection(isSerum
-      ? 'https://solana-api.projectserum.com'
-      : 'https://information.coin98.com/api/solanaV4', 
-      {
-        commitment: 'recent',
-        headers:{
-          development:'coin98'
-        },
-        httpHeaders: {
-          development: 'coin98',
-          authority: 'coin98.com',
-          Version: '1.0',
-          Authorization: 'Bearer token',
-          Signature: 'c26340d5243d802f03de751b9cbc049557ad0a14296aacf4a37dc7399adbe65c',
-          origin: 'https://wallet.coin98.com',
-          referer: 'https://wallet.coin98.com'
-        }
-      })
-    return connectionSolana
-  }
+export const genConnectionSolana = (newRpc) => {
+  const rpc = newRpc || 'https://information.coin98.com/api/solanaV4'
+
+  const connectionSolana = new Connection(
+    rpc,
+    {
+      commitment: 'confirmed',
+      httpHeaders: {
+        development: 'coin98'
+      }
+    }
+  )
+
+  return connectionSolana
 }
 
 const OWNER_VALIDATION_PROGRAM_ID = new PublicKey(
@@ -1182,11 +1174,12 @@ export async function postBaseSendSolanaNew ({
     
     //
 
-    let tx ;
+    const connectionSendTx = genConnectionSolana('https://rpc.ankr.com/solana/939c612972f9b2caebe8d6dd250415a9f240816cc3b9e9ddf655115f0cf9c4ba')
 
+    let tx ;
     if(action === 'sendRawTransaction'){
 
-      tx = await connection[action](transactions.serialize(), {
+      tx = await connectionSendTx[action](transactions.serialize(), {
         skipPreflight,
         preflightCommitment: 'confirmed'
       }).catch((err) => {
@@ -1195,7 +1188,7 @@ export async function postBaseSendSolanaNew ({
       })
 
     }else{
-      tx = await connection[action](transactions, signer, {
+      tx = await connectionSendTx[action](transactions, signer, {
         skipPreflight,
         preflightCommitment: 'confirmed'
       }).catch((err) => {
