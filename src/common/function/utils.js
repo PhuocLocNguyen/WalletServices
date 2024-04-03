@@ -3,7 +3,7 @@ export const getItemStorage = (key) => {
 }
 
 export const getItemStoragePersist = (key) => {
-    const persist = localStorage.getItem('persist:C98HubV1');
+    const persist = localStorage.getItem('persist:C98HubV2');
     const store = JSON.parse(persist);
     return store[key]
 }
