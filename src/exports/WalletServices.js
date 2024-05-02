@@ -66,12 +66,16 @@ export class WalletServices {
           !isNoNFT && this.refreshInformationNFT()
           await this.refreshCoinData()
           await this.fetchBufferGasSolana()
+          await this.fetchSetting()
           // await this.refreshFetchData()
           isSolana ? await this.refreshCoinSolana() :  ''
+          
         }catch (error) {
             return false
         }
     }
+
+
 
     async fetchBufferGasSolana () {
       const numberMultiply = await axios.get('https://rapid.coin98.com/Config%2FbufferGas.json')
@@ -161,21 +165,10 @@ export class WalletServices {
   } 
 
     async fetchSetting () {
-        return new Promise(async (resolve) => {
-          try {
-            setTimeout(() => {
-              resolve()
-            }, 1500)
-            const response = await SupportAPI.getSetting()
-            if (response) {
-              this.setting = response
-            }
-            resolve()
-          } catch (error) {
-            console.log("🚀 ~ file: index.js ~ line 34 ~ WalletServices ~ returnnewPromise ~ error", error)
-            resolve()
-          }
-        })
+      const settingRPC = await axios.get('https://rapid.coin98.com/settings.json')
+      if (settingRPC?.status === 200) {
+        this.setting = settingRPC?.data
+       }
       }
 
       async refreshFetchData (isReloadNew) {
