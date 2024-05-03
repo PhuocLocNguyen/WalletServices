@@ -55,6 +55,7 @@ export class WalletServices {
 
     async checkIsReady ({isNoNFT, isSolana}) {
         try {
+        await this.fetchSetting()
         WEB3_CHAIN.map(item => {
             const web3Only = genWeb3(item)
             this['web3' + item] = web3Only
@@ -66,7 +67,6 @@ export class WalletServices {
           !isNoNFT && this.refreshInformationNFT()
           await this.refreshCoinData()
           await this.fetchBufferGasSolana()
-          await this.fetchSetting()
           // await this.refreshFetchData()
           isSolana ? await this.refreshCoinSolana() :  ''
           
