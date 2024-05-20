@@ -192,7 +192,7 @@ export class WalletServices {
         })
       }
 
-      async refreshCoinData (isReloadNew, chainSupport = Object.keys(CHAIN_DATA)) {
+      async refreshCoinData (chainSupport = Object.keys(CHAIN_DATA)) {
         try {
           return new Promise(async (resolve, reject) => {
          
