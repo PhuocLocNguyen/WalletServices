@@ -201,7 +201,7 @@ export class WalletServices {
       
             if (response) {
               const newResponse = Object.fromEntries(
-                chainSupport.map(item => [item.chain, response[item.chain]])
+                chainSupport.map(chain => [chain, response[chain]])
               )
               setItemStorage(newResponse, 'coinDataLocal')
               this.coinLocal = newResponse
