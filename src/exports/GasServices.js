@@ -195,7 +195,6 @@ export class GasServices {
   // App only using for get language for gas
   static async getGasWithText (chain, isGetNew) {
     const fullGas = await GasServices.get(chain, isGetNew, true)
-
     let subName = ' Gwei '
     switch (chain) {
     case chainType.bitcoin:

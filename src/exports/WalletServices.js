@@ -53,7 +53,7 @@ export class WalletServices {
         this.checkIsReady()
     }
 
-    async checkIsReady ({isNoNFT, isSolana}) {
+    async checkIsReady ({isNoNFT, isSolana, chainSupport}) {
         try {
         await this.fetchSetting()
         WEB3_CHAIN.map(item => {
@@ -65,7 +65,7 @@ export class WalletServices {
             }
           })
           !isNoNFT && this.refreshInformationNFT()
-          await this.refreshCoinData()
+          await this.refreshCoinData(chainSupport)
           await this.fetchBufferGasSolana()
           // await this.refreshFetchData()
           isSolana ? await this.refreshCoinSolana() :  ''
@@ -192,53 +192,23 @@ export class WalletServices {
         })
       }
 
-      async refreshCoinData (isReloadNew) {
+      async refreshCoinData (isReloadNew, chainSupport = Object.keys(CHAIN_DATA)) {
         try {
-          return new Promise(async (resolve) => {
-             const oldDataLocal = await getItemStorage('coinFetchDataLocalV2')
-    
-             const mergeLocal = (tokenList) => {
-                oldDataLocal.map(item => {
-                  if (tokenList[item.chain]) {
-                    tokenList[item.chain].push(item)
-                  } else {
-                    tokenList[item.chain] = [item]
-                  }
-                })
-              }
-
-
-        if (!isReloadNew) {
-            const oldData = await getItemStorage('coinDataLocalV2')
-            if (oldData) {
-              if (getLength(oldDataLocal) > 0) {
-                mergeLocal(oldData)
-              }
-
-              this.coinLocal = oldData
+          return new Promise(async (resolve, reject) => {
+         
+      
+            const response = await SupportAPI.getCoinLocal()
+      
+            if (response) {
+              const newResponse = Object.fromEntries(
+                chainSupport.map(item => [item.chain, response[item.chain]])
+              )
+              setItemStorage(newResponse, 'coinDataLocal')
+              this.coinLocal = newResponse
               resolve()
             }
-          }
-
-        // Fetch new coin local
-          const response = await SupportAPI.getCoinLocal()
-
-          if (response) {
-            setItemStorage(response, 'coinDataLocalV2')
-            if (getLength(oldDataLocal) > 0) {
-              const filterOtherLocal = oldDataLocal.filter(itm => !(response[itm.chain] && response[itm.chain].find(res => lowerCase(res.address) === lowerCase(itm.address))))
-              setItemStorage(filterOtherLocal, 'coinFetchDataLocalV2')
-              mergeLocal(response, filterOtherLocal)
-            }
-    
-            this.coinLocal = response
-  
-            resolve()
-          } else {
-            resolve()
-          }
-     
           })
+        
         } catch (err) {
           console.log('Refresh CoinData ', err)
         }
