@@ -1091,7 +1091,7 @@ export const CHAIN_DATA = {
       isToken: true,
       trcToken: 'ERC20 ARB',
       nftToken: 'ERC721 ARB',
-      // balances: '0xf7eEe3A8363731C611A24CdDfCBcaDE9C153Cfe8',
+      balances: '0xf7eEe3A8363731C611A24CdDfCBcaDE9C153Cfe8',
       // multisend: '0xaEC945e04baF28b135Fa7c640f624f8D90F1C3a6',
       isWeb3: true,
       isFee: true,
