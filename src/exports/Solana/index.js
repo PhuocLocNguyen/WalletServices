@@ -1174,12 +1174,11 @@ export async function postBaseSendSolanaNew ({
     
     //
 
-    const connectionSendTx = genConnectionSolana('https://rpc.ankr.com/solana/939c612972f9b2caebe8d6dd250415a9f240816cc3b9e9ddf655115f0cf9c4ba')
 
     let tx ;
     if(action === 'sendRawTransaction'){
 
-      tx = await connectionSendTx[action](transactions.serialize(), {
+      tx = await connection[action](transactions.serialize(), {
         skipPreflight,
         preflightCommitment: 'confirmed'
       }).catch((err) => {
@@ -1188,7 +1187,7 @@ export async function postBaseSendSolanaNew ({
       })
 
     }else{
-      tx = await connectionSendTx[action](transactions, signer, {
+      tx = await connection[action](transactions, signer, {
         skipPreflight,
         preflightCommitment: 'confirmed'
       }).catch((err) => {
