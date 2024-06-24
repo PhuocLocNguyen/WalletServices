@@ -3,6 +3,26 @@ import { ALGORAND_MIN_TX_FEE } from "../../controller/Library/Local/algo/constan
 import { chainType } from "./chainType";
 
 export const CHAIN_DATA = {
+  xLayer: {
+    numChainId: 196,
+    balances: '0xf7eEe3A8363731C611A24CdDfCBcaDE9C153Cfe8',
+    multisend: '0x5C93F4B35d3dD97Ef481881aA33d00F76806FdAD',
+    chainId: '0xc4',
+    standard: 'ERC20',
+    nftStandard: 'ERC721',
+    isWeb3: true,
+    isFee: true,
+    isToken: true,
+    id: 'okb',
+    image: 'web_xLayer',
+    name: 'X Layer',
+    shortName: 'X Layer',
+    symbol: 'OKB',
+    chain: 'xLayer',
+    tokenStandard: 'ERC20 ERC721',
+    rpcURL: 'https://rpc.xlayer.tech',
+    scan: 'https://www.oklink.com/xlayer',
+  },
   ancient8: {
     balances: '0x6509A9977569413CE8baCa7C50BeA0F2F983E53B',
     isSupportedBaryon: true,

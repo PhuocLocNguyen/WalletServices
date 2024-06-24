@@ -74,4 +74,5 @@ export const chainType = {
   bitkub: 'bitkub',
   ancient8: 'ancient8',
   ancient8Mainnet: 'ancient8Mainnet',
+  xLayer: 'xLayer'
 }
