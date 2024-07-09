@@ -4,8 +4,8 @@ import { chainType } from "./chainType";
 
 export const CHAIN_DATA = {
   zkFair: {
-    balanceContract: '0xf7eEe3A8363731C611A24CdDfCBcaDE9C153Cfe8',
-    multiTransferContract: '0x5C93F4B35d3dD97Ef481881aA33d00F76806FdAD',
+    balances: '0xf7eEe3A8363731C611A24CdDfCBcaDE9C153Cfe8',
+    multisend: '0x5C93F4B35d3dD97Ef481881aA33d00F76806FdAD',
     id: 'usd-coin',
     replacementSymbol: 'ZKFAIR',
     isToken: true,
