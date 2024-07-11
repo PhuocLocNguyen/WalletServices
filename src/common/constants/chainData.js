@@ -3,6 +3,33 @@ import { ALGORAND_MIN_TX_FEE } from "../../controller/Library/Local/algo/constan
 import { chainType } from "./chainType";
 
 export const CHAIN_DATA = {
+  base: {
+    isToken: true,
+    isCrawlNFTServices: true,
+    isSupportedNFT: true,
+
+    tokenStandard: 'ETH ERC20 ERC721',
+    nftStandard: 'ERC721',
+    standard: 'ERC20 BASE',
+    // environment: 'devnet',
+    // isDevnet: true,
+    numChainId: 8453,
+    chainId: '0x2105',
+    // numLoad: 2,
+    isFee: true,
+    isWeb3: true,
+    balances: '0x603873414d44a199AB25eDdD0bfBa96C62f8537D',
+    name: 'Base',
+    icon: 'web_base',
+    image: 'web_base',
+    logo: COIN_IMAGE.ETH,
+    symbol: 'ETH',
+    chain: 'base',
+    rpcURL: 'https://base-pokt.nodies.app',
+    scan: 'https://basescan.org',
+    id: 'ethereum',
+    replacementSymbol: 'BASE',
+  },
   zkFair: {
     balances: '0xf7eEe3A8363731C611A24CdDfCBcaDE9C153Cfe8',
     multisend: '0x5C93F4B35d3dD97Ef481881aA33d00F76806FdAD',

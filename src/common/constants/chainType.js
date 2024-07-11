@@ -75,5 +75,6 @@ export const chainType = {
   ancient8: 'ancient8',
   ancient8Mainnet: 'ancient8Mainnet',
   xLayer: 'xLayer',
-  zkFair: 'zkFair'
+  zkFair: 'zkFair',
+  base: 'base'
 }
